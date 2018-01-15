@@ -1,4 +1,6 @@
-﻿namespace BattleSystem
+﻿using UnityEngine;
+
+namespace BattleSystem
 {
     public class Transform
     {

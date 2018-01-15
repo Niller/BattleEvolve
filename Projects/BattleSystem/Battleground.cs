@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace BattleSystem
 {
@@ -22,16 +23,9 @@ namespace BattleSystem
         public void AddUnit()
         {
         
-            _simulatableUnits.Add(new Unit(Vector2.Zero()));
+            _simulatableUnits.Add(new Unit(Vector2.zero));
         }
         
     }
 
-    public class Vector2
-    {
-        public static Vector2 Zero()
-        {
-            throw new System.NotImplementedException();
-        }
-    }
 }
