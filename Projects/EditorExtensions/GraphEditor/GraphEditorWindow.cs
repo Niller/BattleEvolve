@@ -1,22 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using EditorExtensions.Utilities;
 using JetBrains.Annotations;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace EditorExtensions.GraphEditor
 {
-    public class GraphContext
-    {
-        public string Name
-        {
-            get; 
-            set;
-        }
-    }
-    
     public class GraphEditorWindow : EditorWindow
     {
         #region static
@@ -35,10 +28,13 @@ namespace EditorExtensions.GraphEditor
         #endregion static
 
         private const int TopPanelHeightConst = 17;
+        private const int TopTabsPanelHeightConst = 27;
         
         private readonly List<GraphContext> _openedGraphs = new List<GraphContext>();
 
         private int _currentGraphIndex;
+
+        private GraphViewer _graphViewer;
 
         public GraphEditorWindow()
         {
@@ -66,6 +62,8 @@ namespace EditorExtensions.GraphEditor
         private void OnEnable()
         {
             wantsMouseEnterLeaveWindow = true;
+            DrawingContext.Create();
+            _graphViewer = new GraphViewer();
         }
         
         [UsedImplicitly]
@@ -73,20 +71,22 @@ namespace EditorExtensions.GraphEditor
         private void OnGUI()
         {
             DrawTopPanel();
-            DrawBackground();
             DrawTabs();
+            DrawGraphViewer();
         }
 
-        private void DrawBackground()
+        private void DrawGraphViewer()
         {
-            var mainRect = new Rect(0, TopPanelHeightConst, position.width, position.height - TopPanelHeightConst);
-            var backgroundTexture = new Texture2D(1, 1);
-            BuiltInResources.FillUsingDefaultColor(backgroundTexture, EditorGUIUtility.isProSkin);
-            GUI.DrawTexture(mainRect, backgroundTexture);
+            var mainRect = new Rect(0, TopPanelHeightConst+TopTabsPanelHeightConst, position.width, position.height - TopPanelHeightConst-TopTabsPanelHeightConst);
+            GUILayout.BeginArea(mainRect);
+            DrawingContext.Instance.Viewport = mainRect;
+            _graphViewer.DoLayout(new Rect(0, 0, position.width, position.height - TopPanelHeightConst-TopTabsPanelHeightConst));
+            GUILayout.EndArea();
         }
 
         private void DrawTabs()
         {
+            DrawTabsBackground();
             GUILayout.BeginHorizontal();
             _currentGraphIndex = GUILayout.Toolbar(_currentGraphIndex, _openedGraphs.Select(g => g.Name).ToArray());
             if (GUILayout.Button("+", GUILayout.Width(20f)))
@@ -96,7 +96,15 @@ namespace EditorExtensions.GraphEditor
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
         }
-        
+
+        private void DrawTabsBackground()
+        {
+            var mainRect = new Rect(0, TopPanelHeightConst, position.width, TopTabsPanelHeightConst);
+            var backgroundTexture = new Texture2D(1, 1);
+            BuiltInResources.FillUsingDefaultColor(backgroundTexture, EditorGUIUtility.isProSkin);
+            GUI.DrawTexture(mainRect, backgroundTexture);
+        }
+
         private void DrawTopPanel()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
