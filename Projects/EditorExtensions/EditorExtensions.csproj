@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Controls\GridDrawer.cs" />
     <Compile Include="Controls\Tabs.cs" />
+    <Compile Include="GraphEditor\Actions\IGraphViewerAction.cs" />
     <Compile Include="GraphEditor\DrawingContext.cs" />
     <Compile Include="GraphEditor\GraphContext.cs" />
     <Compile Include="GraphEditor\GraphEditorWindow.cs" />
