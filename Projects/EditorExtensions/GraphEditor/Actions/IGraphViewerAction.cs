@@ -2,6 +2,6 @@
 {
     public interface IGraphViewerAction
     {
-        bool Execute();
+        bool TryExecute();
     }
 }

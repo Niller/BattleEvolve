@@ -54,6 +54,11 @@
   <ItemGroup>
     <Compile Include="Controls\GridDrawer.cs" />
     <Compile Include="Controls\Tabs.cs" />
+    <Compile Include="GraphEditor\Actions\GraphViewerContextMenuAction.cs" />
+    <Compile Include="GraphEditor\Actions\GraphViewerKeyboardAction.cs" />
+    <Compile Include="GraphEditor\Actions\GraphViewerScrollAction.cs" />
+    <Compile Include="GraphEditor\Actions\GraphViewerDragAction.cs" />
+    <Compile Include="GraphEditor\Actions\GraphViewerSelectionAction.cs" />
     <Compile Include="GraphEditor\Actions\IGraphViewerAction.cs" />
     <Compile Include="GraphEditor\DrawingContext.cs" />
     <Compile Include="GraphEditor\GraphContext.cs" />
@@ -63,6 +68,12 @@
     <Compile Include="Utilities\BuiltInResources.cs" />
     <Compile Include="Utilities\StopPlayingAtCompile.cs" />
     <Compile Include="Windows\BuiltInResourcesWindow.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Graphs\Graphs.csproj">
+      <Project>{5531014D-4B06-4603-9122-9134F9E250C4}</Project>
+      <Name>Graphs</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

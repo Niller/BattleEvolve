@@ -62,7 +62,10 @@ namespace EditorExtensions.GraphEditor
         private void OnEnable()
         {
             wantsMouseEnterLeaveWindow = true;
+            
             DrawingContext.Create();
+            SetCurrentGraphContext(0);
+            DrawingContext.SwitchContext();
             _graphViewer = new GraphViewer();
         }
         
@@ -79,8 +82,8 @@ namespace EditorExtensions.GraphEditor
         {
             var mainRect = new Rect(0, TopPanelHeightConst+TopTabsPanelHeightConst, position.width, position.height - TopPanelHeightConst-TopTabsPanelHeightConst);
             GUILayout.BeginArea(mainRect);
-            DrawingContext.Instance.Viewport = mainRect;
-            _graphViewer.DoLayout(new Rect(0, 0, position.width, position.height - TopPanelHeightConst-TopTabsPanelHeightConst));
+            DrawingContext.Current.Viewport = mainRect;
+            _graphViewer.DoLayout(new Rect(0, 0, position.width, position.height - TopPanelHeightConst-TopTabsPanelHeightConst), _openedGraphs[_currentGraphIndex]);
             GUILayout.EndArea();
         }
 
@@ -103,6 +106,12 @@ namespace EditorExtensions.GraphEditor
             var backgroundTexture = new Texture2D(1, 1);
             BuiltInResources.FillUsingDefaultColor(backgroundTexture, EditorGUIUtility.isProSkin);
             GUI.DrawTexture(mainRect, backgroundTexture);
+        }
+
+        private void SetCurrentGraphContext(int index)
+        {
+            GraphContext.Current = _openedGraphs[index];
+            DrawingContext.SwitchContext();
         }
 
         private void DrawTopPanel()

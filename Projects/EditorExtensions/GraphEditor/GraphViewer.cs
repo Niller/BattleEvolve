@@ -9,9 +9,13 @@ namespace EditorExtensions.GraphEditor
 
         private readonly GridDrawer _gridDrawer;
 
-        private readonly IGraphViewerAction[] _actions = new IGraphViewerAction[]
+        private readonly IGraphViewerAction[] _actions = 
         {
-
+            new GraphViewerContextMenuAction(),
+            new GraphViewerKeyboardAction(),
+            new GraphViewerSelectionAction(),
+            new GraphViewerDragAction(), 
+            new GraphViewerScrollAction()             
         };
         
         public GraphViewer()
@@ -22,13 +26,15 @@ namespace EditorExtensions.GraphEditor
             };
         }
         
-        public void DoLayout(Rect rect)
+        public void DoLayout(Rect rect, GraphContext graphContext)
         {
-            _gridDrawer.Draw(rect, DrawingContext.Instance.Scroll);
+            _gridDrawer.Draw(rect, -DrawingContext.Current.Scroll);
 
+            graphContext.Draw();
+            
             foreach (var action in _actions)
             {
-                if (action.Execute())
+                if (action.TryExecute())
                 {
                     break;
                 }

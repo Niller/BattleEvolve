@@ -4,9 +4,11 @@ using System.Linq;
 
 namespace Graphs
 {
-    public class Graph 
+    public class Graph
     {
-        public List<Node> Nodes = new List<Node>();
+        private int _nodeIndex = 0;
+        
+        public readonly List<Node> Nodes = new List<Node>();
 
         public Graph()
         {
@@ -20,11 +22,11 @@ namespace Graphs
         
         public Node AddNode()
         {
-            var newNode = new Node();
+            var newNode = new Node(_nodeIndex++);
             Nodes.Add(newNode);
             return newNode;
         }
-
+        
         public Arc AddArc(Node from, Node to)
         {
             var newArc = new Arc(from, to);
