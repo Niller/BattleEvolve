@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
+using EditorExtensions.Controls;
 using EditorExtensions.Utilities;
 using JetBrains.Annotations;
 using UnityEditor;
@@ -25,6 +28,12 @@ namespace EditorExtensions.GraphEditor
             _window.Show();
         }
 
+        public static bool NeedRepaint
+        {
+            get; 
+            set;
+        }
+
         #endregion static
 
         private const int TopPanelHeightConst = 17;
@@ -35,6 +44,7 @@ namespace EditorExtensions.GraphEditor
         private int _currentGraphIndex;
 
         private GraphViewer _graphViewer;
+        private Tabs _graphTabs;
 
         public GraphEditorWindow()
         {
@@ -66,9 +76,37 @@ namespace EditorExtensions.GraphEditor
             DrawingContext.Create();
             SetCurrentGraphContext(0);
             DrawingContext.SwitchContext();
+            
             _graphViewer = new GraphViewer();
+            
+            _graphTabs = new Tabs(_openedGraphs.Count);
+            _graphTabs.OnSelectionChange += OnTabSelectionChange;
+            _graphTabs.OnTabRemove += OnTabRemove;
+            _graphTabs.OnTabAddClick += OnTabAddClick;
         }
-        
+
+        private void OnTabAddClick()
+        {
+            _openedGraphs.Add(new GraphContext()
+            {
+                Name = "new Graph" + _openedGraphs.Count
+            });
+            _graphTabs.AddTab();
+            NeedRepaint = true;
+        }
+
+        private void OnTabRemove(int i)
+        {
+            _openedGraphs.RemoveAt(i);
+            NeedRepaint = true;
+        }
+
+        private void OnTabSelectionChange(int i)
+        {
+            SetCurrentGraphContext(i);
+            NeedRepaint = true;
+        }
+
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private void OnGUI()
@@ -76,6 +114,12 @@ namespace EditorExtensions.GraphEditor
             DrawTopPanel();
             DrawTabs();
             DrawGraphViewer();
+
+            if (NeedRepaint)
+            {
+                Repaint();
+                NeedRepaint = false;
+            }
         }
 
         private void DrawGraphViewer()
@@ -89,27 +133,17 @@ namespace EditorExtensions.GraphEditor
 
         private void DrawTabs()
         {
-            DrawTabsBackground();
-            GUILayout.BeginHorizontal();
-            _currentGraphIndex = GUILayout.Toolbar(_currentGraphIndex, _openedGraphs.Select(g => g.Name).ToArray());
-            if (GUILayout.Button("+", GUILayout.Width(20f)))
-            {
-                
-            }
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-        }
-
-        private void DrawTabsBackground()
-        {
             var mainRect = new Rect(0, TopPanelHeightConst, position.width, TopTabsPanelHeightConst);
             var backgroundTexture = new Texture2D(1, 1);
             BuiltInResources.FillUsingDefaultColor(backgroundTexture, EditorGUIUtility.isProSkin);
             GUI.DrawTexture(mainRect, backgroundTexture);
+            
+            _graphTabs.DoLayout(mainRect, _openedGraphs.Select(g => g.Name).ToList());
         }
 
         private void SetCurrentGraphContext(int index)
         {
+            _currentGraphIndex = index;
             GraphContext.Current = _openedGraphs[index];
             DrawingContext.SwitchContext();
         }

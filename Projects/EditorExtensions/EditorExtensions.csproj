@@ -74,6 +74,10 @@
       <Project>{5531014D-4B06-4603-9122-9134F9E250C4}</Project>
       <Name>Graphs</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Utilities\Utilities.csproj">
+      <Project>{7CC79B18-B1CA-419A-ABFC-4C215FE7918F}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

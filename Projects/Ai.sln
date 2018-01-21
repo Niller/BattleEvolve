@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Math", "Math\Math.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EditorExtensions", "EditorExtensions\EditorExtensions.csproj", "{A502A06C-E097-4B72-89B8-D4D784AFEB58}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{7CC79B18-B1CA-419A-ABFC-4C215FE7918F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{A502A06C-E097-4B72-89B8-D4D784AFEB58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A502A06C-E097-4B72-89B8-D4D784AFEB58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A502A06C-E097-4B72-89B8-D4D784AFEB58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CC79B18-B1CA-419A-ABFC-4C215FE7918F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CC79B18-B1CA-419A-ABFC-4C215FE7918F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CC79B18-B1CA-419A-ABFC-4C215FE7918F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CC79B18-B1CA-419A-ABFC-4C215FE7918F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
