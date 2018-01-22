@@ -12,7 +12,8 @@ namespace EditorExtensions.GraphEditor.Actions
 
         public bool TryExecute()
         {
-           /* var context = FormationsEditorContext.Instance;
+            var drawingContext = DrawingContext.Current;
+            var graphContext = GraphContext.Current;
 
             var evt = Event.current;
 
@@ -21,33 +22,42 @@ namespace EditorExtensions.GraphEditor.Actions
                 return false;
             }
 
-            EditorSpawnPoint spawnPointByPosition = null;
+            var hasNodeUnderPoint = false;
             if (evt.type == EventType.MouseDown)
             {
-                spawnPointByPosition = context.CurrentFormation.FindSpawnPointByPosition(evt.mousePosition);
-                if (spawnPointByPosition == null)
+                NodeDrawInfo nodeUnderPoint;
+                if (!graphContext.GetNodeDrawInfoByPosition(drawingContext.ApplyScroll(evt.mousePosition), out nodeUnderPoint))
                 {
                     HandleUtility.Repaint();
                 }
                 else
                 {
-                    if (spawnPointByPosition.LastEventType == EventType.MouseDown)
+                    hasNodeUnderPoint = true;
+                    if (nodeUnderPoint.LastEventType == EventType.MouseDown)
                     {
                         if (evt.control)
                         {
-                            context.CurrentFormation.SelectSpawnPoint(spawnPointByPosition);
-                            HandleUtility.Repaint();
+                            graphContext.Select(nodeUnderPoint);
+                            
                             return true;
                         }
 
-                        var selectedDrawersCount = context.CurrentFormation.SelectedSpawnPoints.Count;
-                        if (selectedDrawersCount < 1 || !spawnPointByPosition.IsSelected)
+                        /*
+                        var selectedDrawersCount = drawingContext.CurrentFormation.SelectedSpawnPoints.Count;
+                        if (selectedDrawersCount < 1 || !nodeUnderPoint.IsSelected)
                         {
-                            context.CurrentFormation.CleanUpSelection();
-                            context.CurrentFormation.SelectSpawnPoint(spawnPointByPosition);
+                            drawingContext.CurrentFormation.CleanUpSelection();
+                            drawingContext.CurrentFormation.SelectSpawnPoint(nodeUnderPoint);
                             HandleUtility.Repaint();
                             return true;
                         }
+                        */
+                        
+                        graphContext.CleanUpSelection();
+                        graphContext.Select(nodeUnderPoint);
+                        GraphEditorWindow.NeedHandlesRepaint = true;
+                        return true;
+
                     }
                 }
             }
@@ -60,28 +70,16 @@ namespace EditorExtensions.GraphEditor.Actions
                 return false;
             }
 
-            if (evt.type == EventType.MouseDown && spawnPointByPosition == null)
+            if (evt.type == EventType.MouseDown && !hasNodeUnderPoint)
             {
                 _selecting = false;
                 _wasMouseDown = true;
                 _selectionRect.x = evt.mousePosition.x;
                 _selectionRect.y = evt.mousePosition.y;
                 return false;
-            }
+            }           
 
-            bool isContainInBattleRect = false;
-            if (context.IsArenaMap)
-            {
-                var arenaBattleSizeRect = ((ArenaMapEditorContext) context).ArenaBattleSizeRect;
-                var rect = new Rect(arenaBattleSizeRect.MapScreenRect.x - context.Scroll.x - ArenaMapResizeAction.ResizeStartZone,
-                    arenaBattleSizeRect.MapScreenRect.y - ArenaMapResizeAction.ResizeStartZone - context.Scroll.y,
-                    arenaBattleSizeRect.MapScreenRect.width + ArenaMapResizeAction.ResizeStartZone * 2,
-                    arenaBattleSizeRect.MapScreenRect.height + ArenaMapResizeAction.ResizeStartZone * 2);
-                isContainInBattleRect = rect.Contains(evt.mousePosition);
-            }
-            
-
-            if (evt.type == EventType.MouseDrag && _wasMouseDown && !isContainInBattleRect)
+            if (evt.type == EventType.MouseDrag && _wasMouseDown)
             {
                 _selecting = true;
             }
@@ -95,29 +93,18 @@ namespace EditorExtensions.GraphEditor.Actions
             _selectionRect.height = evt.mousePosition.y - _selectionRect.y;
             DrawRectBorders(_selectionRect, EditorGUIUtility.isProSkin ? Color.white : Color.black);
 
-            SelectSpawnPoints(context, _selectionRect, context.Scroll);
+            SelectNodesByRect(graphContext, _selectionRect, drawingContext.Scroll);
 
             HandleUtility.Repaint();
-            return true;*/
-            return false;
+            return true;
         }
         
-/*
-        public void SelectSpawnPoints(FormationsEditorContext context, Rect selection, Vector2 scroll)
+        public void SelectNodesByRect(GraphContext context, Rect selection, Vector2 scroll)
         {
             selection.x += scroll.x;
             selection.y += scroll.y;
-            var selectedSpawnPoints = new HashSet<EditorSpawnPoint>();
-
-            foreach (var spawnPoint in context.CurrentFormation.SpawnPoints)
-            {
-                if (selection.Overlaps(spawnPoint.Rect, true))
-                {
-                    selectedSpawnPoints.Add(spawnPoint);
-                }   
-            }
-
-            context.CurrentFormation.SelectSpawnPoints(selectedSpawnPoints);
+            var nodeUnderRect = context.GetNodeDrawInfoByRect(selection);
+            context.Select(nodeUnderRect);
         }
 
         private static void DrawRectBorders(Rect rect, Color color)
@@ -127,6 +114,8 @@ namespace EditorExtensions.GraphEditor.Actions
             Handles.DrawLine(rect.max, new Vector2(rect.xMin, rect.yMax));
             Handles.DrawLine(rect.min, new Vector2(rect.xMin, rect.yMax));
             Handles.DrawLine(rect.max, new Vector2(rect.xMax, rect.yMin));
-        }*/
+        }
+        
+        
     }
 }

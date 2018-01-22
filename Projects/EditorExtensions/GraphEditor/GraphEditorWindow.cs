@@ -33,6 +33,12 @@ namespace EditorExtensions.GraphEditor
             get; 
             set;
         }
+        
+        public static bool NeedHandlesRepaint
+        {
+            get; 
+            set;
+        }
 
         #endregion static
 
@@ -119,6 +125,12 @@ namespace EditorExtensions.GraphEditor
             {
                 Repaint();
                 NeedRepaint = false;
+            }
+
+            if (NeedHandlesRepaint)
+            {
+                HandleUtility.Repaint();
+                NeedHandlesRepaint = false;
             }
         }
 
