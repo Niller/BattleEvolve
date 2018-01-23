@@ -24,6 +24,7 @@ namespace EditorExtensions.GraphEditor.Actions
                 if (_isScrolling)
                 {
                     context.Scroll += evt.delta*Speed;
+                    GraphEditorWindow.NeedHandlesRepaint = true;
                     return true;
                 }
             }

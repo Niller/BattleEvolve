@@ -68,6 +68,16 @@ namespace EditorExtensions.GraphEditor
             return postion + Scroll;
         }
 
+        
+        /// <summary>
+        /// Current mouse position with scroll
+        /// </summary>
+        /// <returns></returns>
+        public Vector2 GetMousePosition()
+        {
+            return Event.current.mousePosition - Scroll;
+        }
+
         public void Draw()
         {
             

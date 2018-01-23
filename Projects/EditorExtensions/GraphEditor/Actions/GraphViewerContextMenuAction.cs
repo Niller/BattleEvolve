@@ -24,7 +24,7 @@ namespace EditorExtensions.GraphEditor.Actions
             }
 
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Create node"), false, OnNodeCreateClick, new OnNodeCreateClickArgs(evt.mousePosition));
+            menu.AddItem(new GUIContent("Create node"), false, OnNodeCreateClick, new OnNodeCreateClickArgs(DrawingContext.Current.GetMousePosition()));
             
             menu.ShowAsContext();
             return true;

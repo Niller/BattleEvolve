@@ -11,16 +11,20 @@ namespace EditorExtensions.GraphEditor
 
         public void Draw(IEnumerable<NodeDrawInfo> drawInfos, HashSet<int> selectedNodes)
         {
+            var defaultColor = Handles.color;
             foreach (var drawInfo in drawInfos)
             {
                 var drawingPosition = DrawingContext.Current.ApplyScroll(drawInfo.Position);
                 if (selectedNodes.Contains(drawInfo.Id))
                 {
+                    Handles.color = Color.yellow;;
                     Handles.DrawSolidDisc(drawingPosition, Vector3.forward, drawInfo.Radius + SelectionRadius);
                 }
+                Handles.color = Color.red;
                 Handles.DrawSolidDisc(drawingPosition, Vector3.forward, drawInfo.Radius);
                 
             }
+            Handles.color = defaultColor;
         }
     }
 }

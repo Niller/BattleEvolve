@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace EditorExtensions.GraphEditor.Actions
@@ -17,48 +16,28 @@ namespace EditorExtensions.GraphEditor.Actions
 
             var evt = Event.current;
 
-            if (evt.alt || evt.button != 0)
-            {
-                return false;
-            }
+            if (evt.alt || evt.button != 0) return false;
 
-            var hasNodeUnderPoint = false;
             if (evt.type == EventType.MouseDown)
             {
                 NodeDrawInfo nodeUnderPoint;
-                if (!graphContext.GetNodeDrawInfoByPosition(drawingContext.ApplyScroll(evt.mousePosition), out nodeUnderPoint))
+                if (!graphContext.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeUnderPoint))
                 {
-                    HandleUtility.Repaint();
+                    GraphEditorWindow.NeedHandlesRepaint = true;
                 }
                 else
                 {
-                    hasNodeUnderPoint = true;
-                    if (nodeUnderPoint.LastEventType == EventType.MouseDown)
+                    if (evt.control)
                     {
-                        if (evt.control)
-                        {
-                            graphContext.Select(nodeUnderPoint);
-                            
-                            return true;
-                        }
-
-                        /*
-                        var selectedDrawersCount = drawingContext.CurrentFormation.SelectedSpawnPoints.Count;
-                        if (selectedDrawersCount < 1 || !nodeUnderPoint.IsSelected)
-                        {
-                            drawingContext.CurrentFormation.CleanUpSelection();
-                            drawingContext.CurrentFormation.SelectSpawnPoint(nodeUnderPoint);
-                            HandleUtility.Repaint();
-                            return true;
-                        }
-                        */
-                        
-                        graphContext.CleanUpSelection();
                         graphContext.Select(nodeUnderPoint);
                         GraphEditorWindow.NeedHandlesRepaint = true;
                         return true;
-
                     }
+
+                    graphContext.CleanUpSelection();
+                    graphContext.Select(nodeUnderPoint);
+                    GraphEditorWindow.NeedHandlesRepaint = true;
+                    return true;
                 }
             }
 
@@ -70,27 +49,23 @@ namespace EditorExtensions.GraphEditor.Actions
                 return false;
             }
 
-            if (evt.type == EventType.MouseDown && !hasNodeUnderPoint)
+            if (evt.type == EventType.MouseDown)
             {
                 _selecting = false;
                 _wasMouseDown = true;
                 _selectionRect.x = evt.mousePosition.x;
                 _selectionRect.y = evt.mousePosition.y;
                 return false;
-            }           
-
-            if (evt.type == EventType.MouseDrag && _wasMouseDown)
-            {
-                _selecting = true;
             }
 
-            if (!_selecting)
-            {
-                return false;
-            }
+            if (evt.type == EventType.MouseDrag && _wasMouseDown) _selecting = true;
+
+            if (!_selecting) return false;
 
             _selectionRect.width = evt.mousePosition.x - _selectionRect.x;
             _selectionRect.height = evt.mousePosition.y - _selectionRect.y;
+
+
             DrawRectBorders(_selectionRect, EditorGUIUtility.isProSkin ? Color.white : Color.black);
 
             SelectNodesByRect(graphContext, _selectionRect, drawingContext.Scroll);
@@ -98,13 +73,18 @@ namespace EditorExtensions.GraphEditor.Actions
             HandleUtility.Repaint();
             return true;
         }
-        
-        public void SelectNodesByRect(GraphContext context, Rect selection, Vector2 scroll)
+
+        private void SelectNodesByRect(GraphContext context, Rect selection, Vector2 scroll)
         {
-            selection.x += scroll.x;
-            selection.y += scroll.y;
-            var nodeUnderRect = context.GetNodeDrawInfoByRect(selection);
-            context.Select(nodeUnderRect);
+            selection.position -= scroll;
+
+            //Rect.Contains doesn't work properly with negative width and height that's why avoid it
+            selection = new Rect(_selectionRect.xMin + (selection.width < 0 ? selection.width : 0),
+                selection.yMin + (selection.height < 0 ? selection.height : 0),
+                Mathf.Abs(selection.width), Mathf.Abs(selection.height));
+
+            var nodesUnderRect = context.GetNodeDrawInfoByRect(selection);
+            context.Select(nodesUnderRect);
         }
 
         private static void DrawRectBorders(Rect rect, Color color)
@@ -115,7 +95,5 @@ namespace EditorExtensions.GraphEditor.Actions
             Handles.DrawLine(rect.min, new Vector2(rect.xMin, rect.yMax));
             Handles.DrawLine(rect.max, new Vector2(rect.xMax, rect.yMin));
         }
-        
-        
     }
 }
