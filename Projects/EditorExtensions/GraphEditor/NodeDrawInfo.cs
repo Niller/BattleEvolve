@@ -2,7 +2,7 @@
 
 namespace EditorExtensions.GraphEditor
 {
-    public struct NodeDrawInfo
+    public class NodeDrawInfo
     {
         public int Id
         {

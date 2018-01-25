@@ -27,7 +27,7 @@ namespace EditorExtensions.GraphEditor
 
         private NodeDrawerSystem _nodeDrawerSystem;
         
-        private HashSet<int> _selectedNodes = new HashSet<int>();
+        public HashSet<NodeDrawInfo> SelectedNodes = new HashSet<NodeDrawInfo>();
 
         public string Name
         {
@@ -71,7 +71,7 @@ namespace EditorExtensions.GraphEditor
 
         public void Draw()
         {
-            _nodeDrawerSystem.Draw(_nodeDrawInfos.Values, _selectedNodes);
+            _nodeDrawerSystem.Draw(_nodeDrawInfos.Values, SelectedNodes);
         }
 
         //TODO Optimize search
@@ -98,22 +98,22 @@ namespace EditorExtensions.GraphEditor
         
         public void Select(NodeDrawInfo node)
         {
-            _selectedNodes.Add(node.Id);
+            SelectedNodes.Add(node);
         }
         
         public void Select(HashSet<NodeDrawInfo> nodes)
         {
-            _selectedNodes = new HashSet<int>(nodes.Select(n => n.Id));
+            SelectedNodes = new HashSet<NodeDrawInfo>(nodes);
         }
 
         public void ClearSelection(NodeDrawInfo node)
         {
-            _selectedNodes.Remove(node.Id);
+            SelectedNodes.Remove(node);
         }
 
         public void CleanUpSelection()
         {
-            _selectedNodes.Clear();
+            SelectedNodes.Clear();
         }
         
         #endregion

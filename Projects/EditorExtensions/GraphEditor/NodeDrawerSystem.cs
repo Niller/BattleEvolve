@@ -9,13 +9,13 @@ namespace EditorExtensions.GraphEditor
     {
         private const int SelectionRadius = 6;
 
-        public void Draw(IEnumerable<NodeDrawInfo> drawInfos, HashSet<int> selectedNodes)
+        public void Draw(IEnumerable<NodeDrawInfo> drawInfos, HashSet<NodeDrawInfo> selectedNodes)
         {
             var defaultColor = Handles.color;
             foreach (var drawInfo in drawInfos)
             {
                 var drawingPosition = DrawingContext.Current.ApplyScroll(drawInfo.Position);
-                if (selectedNodes.Contains(drawInfo.Id))
+                if (selectedNodes.Contains(drawInfo))
                 {
                     Handles.color = Color.yellow;;
                     Handles.DrawSolidDisc(drawingPosition, Vector3.forward, drawInfo.Radius + SelectionRadius);
