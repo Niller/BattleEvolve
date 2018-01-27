@@ -68,5 +68,25 @@ namespace EditorExtensions.GraphEditor
             GraphDrawerSystem.DrawArcs(_graph.Arcs);
             GraphDrawerSystem.DrawNodes();
         }
+
+        public void RemoveSelected()
+        {
+            if (GraphDrawerSystem.SelectedArc != null)
+            {
+                _graph.RemoveArc(GraphDrawerSystem.SelectedArc);
+                GraphDrawerSystem.DeselectArc();
+            }
+
+            if (GraphDrawerSystem.SelectedNodes.Count > 0)
+            {
+                foreach (var selectedNode in GraphDrawerSystem.SelectedNodes)
+                {
+                    var node = GraphDrawerSystem.GetNode(selectedNode);
+                    _graph.RemoveNode(node);
+                    GraphDrawerSystem.RemoveNode(node);
+                }
+                GraphDrawerSystem.CleanUpSelection();
+            } 
+        }
     }
 }

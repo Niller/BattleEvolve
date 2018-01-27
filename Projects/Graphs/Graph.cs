@@ -54,17 +54,18 @@ namespace Graphs
         {
             arc.From.ArcsOut.Remove(arc);
             arc.To.ArcsIn.Remove(arc);
+            Arcs.Remove(arc);
         }
 
         public void RemoveNode(Node node)
         {
             Nodes.Remove(node);
-            foreach (var arc in node.ArcsOut)
+            foreach (var arc in node.ArcsOut.ToList())
             {
                 RemoveArc(arc);
             }
             
-            foreach (var arc in node.ArcsIn)
+            foreach (var arc in node.ArcsIn.ToList())
             {
                 RemoveArc(arc);
             }

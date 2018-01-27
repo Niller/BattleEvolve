@@ -6,7 +6,7 @@ namespace EditorExtensions.GraphEditor.Actions
     {
         public bool TryExecute()
         {
-            //var context = FormationsEditorContext.Instance;
+            var graphContext = GraphContext.Current;
 
             var evt = Event.current;
             if (evt.type != EventType.KeyUp)
@@ -16,13 +16,8 @@ namespace EditorExtensions.GraphEditor.Actions
 
             if (evt.keyCode == KeyCode.Delete)
             {
-                //context.CurrentFormation.RemoveSelectedSpawnPoints();
-                return true;
-            }
-
-            if (evt.control && evt.keyCode == KeyCode.D)
-            {
-                //context.CurrentFormation.DublicateSelectedSpawnPoints();
+                graphContext.RemoveSelected();
+                GraphEditorWindow.NeedHandlesRepaint = true;
                 return true;
             }
 
