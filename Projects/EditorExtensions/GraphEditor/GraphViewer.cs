@@ -30,7 +30,7 @@ namespace EditorExtensions.GraphEditor
         
         public void DoLayout(Rect rect, GraphContext graphContext)
         {
-            _gridDrawer.Draw(rect, -DrawingContext.Current.Scroll);
+            _gridDrawer.Draw(rect, -DrawingContext.Current.Scroll, rect.center);
 
             graphContext.Draw();
             

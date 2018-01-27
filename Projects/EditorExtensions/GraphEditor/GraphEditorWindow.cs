@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using EditorExtensions.Controls;
 using EditorExtensions.Utilities;
+using Graphs;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEditorInternal;
@@ -20,7 +22,7 @@ namespace EditorExtensions.GraphEditor
         private static GraphEditorWindow _window;
         
         [MenuItem("BattleEvolve/Graph editor")]
-        public static void Open()
+        public static void OpenWindow()
         {
             _window = GetWindow<GraphEditorWindow>();
             _window.titleContent = new GUIContent("Graph editor", BuiltInResources.FindIcon("d_PreTextureMipMapLow"));
@@ -44,7 +46,8 @@ namespace EditorExtensions.GraphEditor
 
         private const int TopPanelHeightConst = 17;
         private const int TopTabsPanelHeightConst = 27;
-        
+        private const string GraphsDefaultPath = "Assets/Resources/Data/Graphs/";
+
         private readonly List<GraphContext> _openedGraphs = new List<GraphContext>();
 
         private int _currentGraphIndex;
@@ -56,19 +59,7 @@ namespace EditorExtensions.GraphEditor
         {
             _openedGraphs.Add(new GraphContext()
             {
-                Name = "Graph1"
-            });
-            _openedGraphs.Add(new GraphContext()
-            {
-                Name = "Graph2"
-            });
-            _openedGraphs.Add(new GraphContext()
-            {
-                Name = "Graph3"
-            });
-            _openedGraphs.Add(new GraphContext()
-            {
-                Name = "Graph4"
+                Name = "New graph"
             });
 
             _currentGraphIndex = 0;
@@ -93,10 +84,17 @@ namespace EditorExtensions.GraphEditor
 
         private void OnTabAddClick()
         {
-            _openedGraphs.Add(new GraphContext()
+            AddGraphContext(new GraphContext()
             {
                 Name = "new Graph" + _openedGraphs.Count
             });
+            _graphTabs.AddTab();
+            NeedRepaint = true;
+        }
+
+        private void AddGraphContext(GraphContext graphContext)
+        {
+            _openedGraphs.Add(graphContext);
             _graphTabs.AddTab();
             NeedRepaint = true;
         }
@@ -162,34 +160,81 @@ namespace EditorExtensions.GraphEditor
 
         private void DrawTopPanel()
         {
+            var graphContext = GraphContext.Current;
+            
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             {
                 GUILayout.FlexibleSpace();
-                if (GUILayout.Button("Create", EditorStyles.toolbarButton, GUILayout.Width(50)))
-                {
-                    
-                    if (EditorUtility.DisplayDialog("Unsaved changes", "You may lost your unsaved changes. Do you want to save them?",
-                        "Yes", "No"))
-                    {
-                    }
-                    Repaint();
-                }
-
                 if (GUILayout.Button("Open", EditorStyles.toolbarButton, GUILayout.Width(50)))
                 {
-                    Repaint();
+                    OpenGraph();
+                    NeedRepaint = true;
                 }
 
                 if (GUILayout.Button("Save", EditorStyles.toolbarButton, GUILayout.Width(50)))
                 {
+                    if (string.IsNullOrEmpty(graphContext.CurrentPath))
+                    {
+                        SaveGraphAs(graphContext);
+                    }
+                    else
+                    {
+                        SaveGraph(graphContext);
+                    }
                 }
 
                 if (GUILayout.Button("Save As", EditorStyles.toolbarButton, GUILayout.Width(50)))
                 {
+                    SaveGraphAs(graphContext);
                 }
             
                 EditorGUILayout.EndHorizontal();
             }
+        }
+
+        private void OpenGraph()
+        {
+            var path = GraphsDefaultPath;
+
+            path = EditorUtility.OpenFilePanel("Open Graph", Directory.GetParent(path).FullName, "bytes");
+            if (string.IsNullOrEmpty(path))
+                return;
+            if (!File.Exists(path))
+            {
+                EditorUtility.DisplayDialog("File not exists",
+                    "Selected file not exists, you must select Graph binary file.", "Ok");
+                return;
+            }
+
+            var graph = IoUtilities.LoadFromFile<Graph>(path, Graph.Signature);
+            AddGraphContext(new GraphContext(graph)
+            {
+                Name = Path.GetFileNameWithoutExtension(path),
+                CurrentPath = path,
+            });     
+        }
+
+        private void SaveGraphAs(GraphContext graphContext)
+        {
+            var path = GraphsDefaultPath;
+            path = EditorUtility.SaveFilePanel("Save Graph",
+                Directory.GetParent(path).FullName, "Graph", "bytes");
+
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            graphContext.CurrentPath = path;
+            
+            SaveGraph(graphContext);
+        }
+
+        private void SaveGraph(GraphContext graphContext)
+        {
+            graphContext.Save();
+            
+            AssetDatabase.Refresh();
         }
     }
 }

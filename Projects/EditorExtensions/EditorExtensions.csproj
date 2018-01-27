@@ -69,6 +69,7 @@
     <Compile Include="GraphEditor\Utilities\DrawUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\BuiltInResources.cs" />
+    <Compile Include="Utilities\IoUtilities.cs" />
     <Compile Include="Utilities\StopPlayingAtCompile.cs" />
     <Compile Include="Windows\BuiltInResourcesWindow.cs" />
   </ItemGroup>

@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Utilities;
 
 namespace Graphs
 {
     public class Node
     {
-        public int Id
+        public uint Id
         {
             get;
             private set;
@@ -14,7 +16,7 @@ namespace Graphs
         public readonly HashSet<Arc> ArcsOut = new HashSet<Arc>();
         public readonly HashSet<Arc> ArcsIn = new HashSet<Arc>();
         
-        public Node(int id)
+        public Node(uint id)
         {
             Id = id;
         }

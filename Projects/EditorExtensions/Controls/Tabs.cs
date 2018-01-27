@@ -45,8 +45,7 @@ namespace EditorExtensions.Controls
         
         public void AddTab()
         {
-            _tabsCount++;
-            
+            SelectionIndex = _tabsCount++;
         }
 
         // ReSharper disable once MemberCanBePrivate.Global

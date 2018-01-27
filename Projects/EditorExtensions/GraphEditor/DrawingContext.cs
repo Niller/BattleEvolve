@@ -58,7 +58,7 @@ namespace EditorExtensions.GraphEditor
             set
             {
                 _scroll = value;
-                LimitScroll();
+                //LimitScroll();
                 //HandleUtility.Repaint();
             }
         }

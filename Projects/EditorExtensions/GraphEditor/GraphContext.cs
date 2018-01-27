@@ -1,7 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using EditorExtensions.Utilities;
 using Graphs;
 using UnityEngine;
 using Utilities.Extensions;
@@ -21,6 +24,7 @@ namespace EditorExtensions.GraphEditor
         #endregion
         
         private readonly Graph _graph;
+        private string _currentPath;
         
         public GraphDrawerSystem GraphDrawerSystem
         {
@@ -32,6 +36,20 @@ namespace EditorExtensions.GraphEditor
         {
             get; 
             set;
+        }
+
+        public string CurrentPath
+        {
+            get
+            {
+                return _currentPath; 
+                
+            }
+            set
+            {
+                _currentPath = value;
+                Name = Path.GetFileNameWithoutExtension(_currentPath);
+            }
         }
 
         public GraphContext(Graph graph)
@@ -87,6 +105,16 @@ namespace EditorExtensions.GraphEditor
                 }
                 GraphDrawerSystem.CleanUpSelection();
             } 
+        }
+
+        public void Save()
+        {
+            if (string.IsNullOrEmpty(CurrentPath))
+            {
+                throw new ArgumentException("Cannot save. Path is unknown");
+            }
+            
+            IoUtilities.SaveToFile(CurrentPath, _graph);
         }
     }
 }

@@ -18,15 +18,13 @@ namespace EditorExtensions.GraphEditor.Actions
                 if (!_isScrolling)
                 {
                     _isScrolling = evt.alt && evt.button == 0 || evt.button == 2;
-                    DragAndDrop.PrepareStartDrag();
+                    //DragAndDrop.PrepareStartDrag();
                     return true;
                 }
-                if (_isScrolling)
-                {
-                    context.Scroll += evt.delta*Speed;
-                    GraphEditorWindow.NeedHandlesRepaint = true;
-                    return true;
-                }
+
+                context.Scroll += evt.delta*Speed;
+                GraphEditorWindow.NeedHandlesRepaint = true;
+                return true;
             }
                         
             if (Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseLeaveWindow)

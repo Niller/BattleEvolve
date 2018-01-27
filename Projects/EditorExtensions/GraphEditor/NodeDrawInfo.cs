@@ -4,7 +4,7 @@ namespace EditorExtensions.GraphEditor
 {
     public class NodeDrawInfo
     {
-        public int Id
+        public uint Id
         {
             get;
             private set;
@@ -18,7 +18,7 @@ namespace EditorExtensions.GraphEditor
             set; 
         }
 
-        public NodeDrawInfo(int id, Vector2 postion)
+        public NodeDrawInfo(uint id, Vector2 postion)
         {
             Id = id;
             Position = postion;

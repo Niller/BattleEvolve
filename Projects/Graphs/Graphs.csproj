@@ -43,6 +43,12 @@
     <Compile Include="Node.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Utilities\Utilities.csproj">
+      <Project>{7CC79B18-B1CA-419A-ABFC-4C215FE7918F}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>call $(ProjectDir)..\copy.bat $(ProjectDir)$(OutDir)$(ProjectName) $(SolutionDir)..\Assets\Plugins\Projects $(ProjectDir)$(OutDir)</PostBuildEvent>
