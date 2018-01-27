@@ -20,6 +20,13 @@ namespace EditorExtensions.GraphEditor.Actions
                 GraphEditorWindow.NeedHandlesRepaint = true;
                 return true;
             }
+            
+            if (evt.keyCode == KeyCode.L)
+            {
+                graphContext.GraphDrawerSystem.Layout();
+                GraphEditorWindow.NeedHandlesRepaint = true;
+                return true;
+            }
 
             return false;
         }

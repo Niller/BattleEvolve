@@ -63,8 +63,10 @@
     <Compile Include="GraphEditor\DrawingContext.cs" />
     <Compile Include="GraphEditor\GraphContext.cs" />
     <Compile Include="GraphEditor\GraphEditorWindow.cs" />
+    <Compile Include="GraphEditor\GraphForceBasedLayoutSystem.cs" />
     <Compile Include="GraphEditor\GraphViewer.cs" />
     <Compile Include="GraphEditor\GraphDrawerSystem.cs" />
+    <Compile Include="GraphEditor\IGraphLayoutSystem.cs" />
     <Compile Include="GraphEditor\NodeDrawInfo.cs" />
     <Compile Include="GraphEditor\Utilities\DrawUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

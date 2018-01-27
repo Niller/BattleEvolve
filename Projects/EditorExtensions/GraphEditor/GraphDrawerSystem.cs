@@ -18,10 +18,17 @@ namespace EditorExtensions.GraphEditor
         
         public HashSet<NodeDrawInfo> SelectedNodes = new HashSet<NodeDrawInfo>();
 
+        protected IGraphLayoutSystem _graphLayoutSystem;
+
         public Arc SelectedArc
         {
             get;
             set;
+        }
+
+        public GraphDrawerSystem()
+        {
+            _graphLayoutSystem = new GraphForceBasedLayoutSystem();
         }
 
         public void DrawNodes()
@@ -185,6 +192,11 @@ namespace EditorExtensions.GraphEditor
         private Color GetArcColor(Arc arc)
         {
             return arc == SelectedArc ? Color.yellow : Color.white;
+        }
+
+        public void Layout()
+        {
+            _graphLayoutSystem.Layout(_nodeDrawInfos);
         }
     }
 }

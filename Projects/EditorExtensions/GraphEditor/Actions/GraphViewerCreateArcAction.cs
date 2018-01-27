@@ -42,13 +42,13 @@ namespace EditorExtensions.GraphEditor.Actions
                     {
                         if (nodeDrawInfo == _nodeFrom)
                         {
-                            DrawUtilities.DrawLoop(_nodeFrom.Position, _nodeFrom.Radius, Color.white);
+                            DrawUtilities.DrawLoop(drawingContext.ApplyScroll(_nodeFrom.Position), _nodeFrom.Radius, Color.white);
                             GraphEditorWindow.NeedHandlesRepaint = true;
                             return true;
                         }
                     }
 
-                    DrawUtilities.DrawDirectionalLine(_nodeFrom.Position, drawingContext.GetMousePosition(), _nodeFrom.Radius, Color.white);
+                    DrawUtilities.DrawDirectionalLine(drawingContext.ApplyScroll(_nodeFrom.Position), drawingContext.GetMousePosition(), _nodeFrom.Radius, Color.white);
                     GraphEditorWindow.NeedHandlesRepaint = true;
                     return true;
                 }
