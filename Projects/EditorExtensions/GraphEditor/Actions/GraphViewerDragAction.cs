@@ -14,7 +14,7 @@ namespace EditorExtensions.GraphEditor.Actions
         {
             
             var drawingContext = DrawingContext.Current;
-            var graphContext = GraphContext.Current;
+            var graphDrawerSystem = GraphContext.Current.GraphDrawerSystem;
 
             var evt = Event.current;
             if (evt.control || evt.alt)
@@ -34,9 +34,9 @@ namespace EditorExtensions.GraphEditor.Actions
                 _dragDelta = Vector2.zero;
                 _isDragging = true;
                 NodeDrawInfo nodeByPosition;
-                if (!graphContext.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeByPosition))
+                if (!graphDrawerSystem.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeByPosition))
                 {
-                    graphContext.CleanUpSelection();
+                    graphDrawerSystem.CleanUpSelection();
                     GraphEditorWindow.NeedHandlesRepaint = true;
 
                     _isDragging = false;
@@ -50,14 +50,14 @@ namespace EditorExtensions.GraphEditor.Actions
                 if (!_isDragging)
                 {
                     NodeDrawInfo nodeByPosition;
-                    if (!graphContext.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeByPosition))
+                    if (!graphDrawerSystem.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeByPosition))
                     {
                         return false;
                     }
                     _isDragging = true;
                 }
 
-                foreach (var node in graphContext.SelectedNodes)
+                foreach (var node in graphDrawerSystem.SelectedNodes)
                 {
 
                     node.Position = node.Position + evt.delta;

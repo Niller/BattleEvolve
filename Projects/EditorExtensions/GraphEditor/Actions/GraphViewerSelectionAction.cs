@@ -12,7 +12,7 @@ namespace EditorExtensions.GraphEditor.Actions
         public bool TryExecute()
         {
             var drawingContext = DrawingContext.Current;
-            var graphContext = GraphContext.Current;
+            var graphDrawerSystem = GraphContext.Current.GraphDrawerSystem;
 
             var evt = Event.current;
 
@@ -22,7 +22,7 @@ namespace EditorExtensions.GraphEditor.Actions
             if (evt.type == EventType.MouseDown)
             {
                 NodeDrawInfo nodeUnderPoint;
-                if (!graphContext.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeUnderPoint))
+                if (!graphDrawerSystem.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeUnderPoint))
                 {
                     GraphEditorWindow.NeedHandlesRepaint = true;
                     
@@ -31,15 +31,15 @@ namespace EditorExtensions.GraphEditor.Actions
                 {
                     if (evt.control)
                     {
-                        graphContext.Select(nodeUnderPoint);
+                        graphDrawerSystem.Select(nodeUnderPoint);
                         GraphEditorWindow.NeedHandlesRepaint = true;
                         return true;
                     }
 
-                    if (!graphContext.SelectedNodes.Contains(nodeUnderPoint))
+                    if (!graphDrawerSystem.SelectedNodes.Contains(nodeUnderPoint))
                     {
-                        graphContext.CleanUpSelection();
-                        graphContext.Select(nodeUnderPoint);
+                        graphDrawerSystem.CleanUpSelection();
+                        graphDrawerSystem.Select(nodeUnderPoint);
                         GraphEditorWindow.NeedHandlesRepaint = true;
                         return true;
                     }
@@ -81,17 +81,17 @@ namespace EditorExtensions.GraphEditor.Actions
 
             DrawRectBorders(_selectionRect, EditorGUIUtility.isProSkin ? Color.white : Color.black);
 
-            SelectNodesByRect(graphContext, _selectionRect, drawingContext.Scroll);
+            SelectNodesByRect(graphDrawerSystem, _selectionRect, drawingContext.Scroll);
 
             HandleUtility.Repaint();
             return true;
         }
 
-        private void SelectNodesByRect(GraphContext context, Rect selection, Vector2 scroll)
+        private void SelectNodesByRect(GraphDrawerSystem graphDrawerSystem, Rect selection, Vector2 scroll)
         {
             selection.position -= scroll;
-            var nodesUnderRect = context.GetNodeDrawInfoByRect(selection);
-            context.Select(nodesUnderRect);
+            var nodesUnderRect = graphDrawerSystem.GetNodeDrawInfoByRect(selection);
+            graphDrawerSystem.Select(nodesUnderRect);
         }
 
         private static void DrawRectBorders(Rect rect, Color color)
