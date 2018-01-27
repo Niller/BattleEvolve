@@ -52,12 +52,13 @@
   <ItemGroup>
     <Compile Include="Controls\GridDrawer.cs" />
     <Compile Include="Controls\Tabs.cs" />
+    <Compile Include="GraphEditor\Actions\GraphViewerArcSelectionAction.cs" />
     <Compile Include="GraphEditor\Actions\GraphViewerContextMenuAction.cs" />
     <Compile Include="GraphEditor\Actions\GraphViewerCreateArcAction.cs" />
     <Compile Include="GraphEditor\Actions\GraphViewerKeyboardAction.cs" />
     <Compile Include="GraphEditor\Actions\GraphViewerScrollAction.cs" />
     <Compile Include="GraphEditor\Actions\GraphViewerDragAction.cs" />
-    <Compile Include="GraphEditor\Actions\GraphViewerSelectionAction.cs" />
+    <Compile Include="GraphEditor\Actions\GraphViewerNodeSelectionAction.cs" />
     <Compile Include="GraphEditor\Actions\IGraphViewerAction.cs" />
     <Compile Include="GraphEditor\DrawingContext.cs" />
     <Compile Include="GraphEditor\GraphContext.cs" />
@@ -75,6 +76,10 @@
     <ProjectReference Include="..\Graphs\Graphs.csproj">
       <Project>{5531014D-4B06-4603-9122-9134F9E250C4}</Project>
       <Name>Graphs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Math\Math.csproj">
+      <Project>{72D466E9-86A6-48E4-83B5-DB223DE9A5FA}</Project>
+      <Name>Math</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{7CC79B18-B1CA-419A-ABFC-4C215FE7918F}</Project>

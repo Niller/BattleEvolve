@@ -10,7 +10,7 @@ namespace EditorExtensions.GraphEditor.Utilities
         private const float ArrowWidth = 5;
         private const float ArrowHeight = 12;
         
-        public static void DrawDirectionalLine(Vector2 from, Vector2 to, int deltaLength, bool twoDirections = false)
+        public static void DrawDirectionalLine(Vector2 from, Vector2 to, int deltaLength, Color color, bool twoDirections = false)
         {
             Vector3 forward = (to - from).normalized;
             Vector3 backward = (from - to).normalized;
@@ -24,7 +24,7 @@ namespace EditorExtensions.GraphEditor.Utilities
             
             Handles.BeginGUI(); 
             {
-                BeginHandlesDrawColor(Color.white);
+                BeginHandlesDrawColor(color);
                 {
                     Handles.DrawAAPolyLine(arrowLine);
                     Handles.DrawAAConvexPolygon(GetArrowHead(end, forward));
@@ -38,7 +38,7 @@ namespace EditorExtensions.GraphEditor.Utilities
             Handles.EndGUI();
         }
 
-        public static void DrawLoop(Vector2 fromCenter, int deltaLength)
+        public static void DrawLoop(Vector2 fromCenter, int deltaLength, Color color)
         {
             const int bezierLineWidth = 2;
             const int bezierDivision = 20;
@@ -57,11 +57,15 @@ namespace EditorExtensions.GraphEditor.Utilities
             Handles.BeginGUI(); 
             {
                 
-                Handles.DrawBezier(from, to, startTangent, endTangent, Color.white, null, bezierLineWidth);
+                Handles.DrawBezier(from, to, startTangent, endTangent, color, null, bezierLineWidth);
                 var points = Handles.MakeBezierPoints(from, to, startTangent, endTangent, bezierDivision);
-
-                var arrowDirection = (points[points.Length - 1] - points[points.Length - 2]).normalized;
-                Handles.DrawAAConvexPolygon(GetArrowHead(to+arrowDirection*ArrowWidth, arrowDirection));
+                
+                BeginHandlesDrawColor(color);
+                {
+                    var arrowDirection = (points[points.Length - 1] - points[points.Length - 2]).normalized;
+                    Handles.DrawAAConvexPolygon(GetArrowHead(to + arrowDirection * ArrowWidth, arrowDirection));
+                }
+                EndHandlesDrawColor();
             }
             Handles.EndGUI();
         }

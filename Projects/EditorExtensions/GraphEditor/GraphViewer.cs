@@ -14,7 +14,8 @@ namespace EditorExtensions.GraphEditor
             new GraphViewerContextMenuAction(),
             new GraphViewerKeyboardAction(),
             new GraphViewerCreateArcAction(), 
-            new GraphViewerSelectionAction(),
+            new GraphViewerNodeSelectionAction(),
+            new GraphViewerArcSelectionAction(), 
             new GraphViewerDragAction(), 
             new GraphViewerScrollAction()             
         };

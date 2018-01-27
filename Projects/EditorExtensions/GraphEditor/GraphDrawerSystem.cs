@@ -2,6 +2,7 @@
 using System.Linq;
 using EditorExtensions.GraphEditor.Utilities;
 using Graphs;
+using Math;
 using UnityEditor;
 using UnityEngine;
 using Utilities.Extensions;
@@ -11,10 +12,17 @@ namespace EditorExtensions.GraphEditor
     public class GraphDrawerSystem
     {
         private const int SelectionRadius = 6;
-        
+        private const int SelectionArcDistance = 15;
+
         private Dictionary<Node, NodeDrawInfo> _nodeDrawInfos = new Dictionary<Node, NodeDrawInfo>();
         
         public HashSet<NodeDrawInfo> SelectedNodes = new HashSet<NodeDrawInfo>();
+
+        public Arc SelectedArc
+        {
+            get;
+            set;
+        }
 
         public void DrawNodes()
         {
@@ -79,11 +87,45 @@ namespace EditorExtensions.GraphEditor
             return _nodeDrawInfos.Values.Where(n => rect.Contains(n.Position, true)).ToHashSet();
         }
 
+        //TODO Optimize search
+        public bool SelectArcByPostion(Vector2 position)
+        {
+            foreach (var nodePair in _nodeDrawInfos)
+            {
+                foreach (var arc in nodePair.Key.ArcsOut)
+                {
+                    bool needSelectArc = arc.IsLoop()
+                        ? CheckDistanceFromPointToLoop(position, nodePair.Value)
+                        : ChectDistanceFromPointToArc(position, arc);
+                    if (needSelectArc)
+                    {
+                        SelectedArc = arc;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private bool CheckDistanceFromPointToLoop(Vector2 p, NodeDrawInfo nodeDrawInfo)
+        {
+            return Vector2.Distance((Vector3)nodeDrawInfo.Position + (Vector3.down + Vector3.right)  * nodeDrawInfo.Radius, p) < SelectionArcDistance;
+        }
+
+        private bool ChectDistanceFromPointToArc(Vector2 p, Arc arc)
+        {
+            var p0 = _nodeDrawInfos[arc.From].Position;
+            var p1 = _nodeDrawInfos[arc.To].Position;
+            var distance = Geometry.DistancePointLine(p, p0, p1);
+            return distance < SelectionArcDistance;
+        }
+
         #region selection
         
         public void Select(NodeDrawInfo node)
         {
             SelectedNodes.Add(node);
+            DeselectArc();                        
         }
         
         public void Select(HashSet<NodeDrawInfo> nodes)
@@ -91,7 +133,7 @@ namespace EditorExtensions.GraphEditor
             SelectedNodes = new HashSet<NodeDrawInfo>(nodes);
         }
 
-        public void ClearSelection(NodeDrawInfo node)
+        public void Deselect(NodeDrawInfo node)
         {
             SelectedNodes.Remove(node);
         }
@@ -101,6 +143,11 @@ namespace EditorExtensions.GraphEditor
             SelectedNodes.Clear();
         }
         
+        public void DeselectArc()
+        {
+            SelectedArc = null;
+        }
+           
         #endregion
 
         public void DrawArcs(IEnumerable<Arc> arcs)
@@ -120,19 +167,24 @@ namespace EditorExtensions.GraphEditor
                 {
                     if (arc.From == arc.To)
                     {
-                        DrawUtilities.DrawLoop(from, nodeTo.Radius);   
+                        DrawUtilities.DrawLoop(from, nodeTo.Radius, GetArcColor(arc));   
                     }
                     else
                     {
-                        DrawUtilities.DrawDirectionalLine(from, to, nodeTo.Radius, true);
+                        DrawUtilities.DrawDirectionalLine(from, to, nodeTo.Radius, GetArcColor(arc), true);
                         passedArcs.Add(oppositeDirectionArc);
                     }
                 }
                 else
                 {
-                    DrawUtilities.DrawDirectionalLine(from, to, nodeTo.Radius, false);
+                    DrawUtilities.DrawDirectionalLine(from, to, nodeTo.Radius, GetArcColor(arc));
                 }
             }
+        }
+
+        private Color GetArcColor(Arc arc)
+        {
+            return arc == SelectedArc ? Color.yellow : Color.white;
         }
     }
 }

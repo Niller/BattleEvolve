@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace EditorExtensions.GraphEditor.Actions
 {
-    public class GraphViewerSelectionAction : IGraphViewerAction
+    public class GraphViewerNodeSelectionAction : IGraphViewerAction
     {
         private bool _selecting;
         private Rect _selectionRect;
