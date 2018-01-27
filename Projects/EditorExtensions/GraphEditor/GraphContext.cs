@@ -91,7 +91,7 @@ namespace EditorExtensions.GraphEditor
 
         public HashSet<NodeDrawInfo> GetNodeDrawInfoByRect(Rect rect)
         {
-            return _nodeDrawInfos.Values.Where(n => rect.Contains(n.Position)).ToHashSet();
+            return _nodeDrawInfos.Values.Where(n => rect.Contains(n.Position, true)).ToHashSet();
         }
 
         #region selection

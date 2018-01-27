@@ -7,7 +7,7 @@ namespace EditorExtensions.GraphEditor.Actions
     {
         private bool _selecting;
         private Rect _selectionRect;
-        private bool _wasMouseDown;
+        private bool _canCreateSelectionBox;
 
         public bool TryExecute()
         {
@@ -18,12 +18,14 @@ namespace EditorExtensions.GraphEditor.Actions
 
             if (evt.alt || evt.button != 0) return false;
 
+            bool isNodeUnderPoint = false;
             if (evt.type == EventType.MouseDown)
             {
                 NodeDrawInfo nodeUnderPoint;
                 if (!graphContext.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeUnderPoint))
                 {
                     GraphEditorWindow.NeedHandlesRepaint = true;
+                    
                 }
                 else
                 {
@@ -34,17 +36,22 @@ namespace EditorExtensions.GraphEditor.Actions
                         return true;
                     }
 
-                    graphContext.CleanUpSelection();
-                    graphContext.Select(nodeUnderPoint);
-                    GraphEditorWindow.NeedHandlesRepaint = true;
-                    return true;
+                    if (!graphContext.SelectedNodes.Contains(nodeUnderPoint))
+                    {
+                        graphContext.CleanUpSelection();
+                        graphContext.Select(nodeUnderPoint);
+                        GraphEditorWindow.NeedHandlesRepaint = true;
+                        return true;
+                    }
+                    
+                    isNodeUnderPoint = true;
                 }
             }
 
             if (evt.type == EventType.MouseUp)
             {
                 _selecting = false;
-                _wasMouseDown = false;
+                _canCreateSelectionBox = false;
                 _selectionRect = new Rect();
                 return false;
             }
@@ -52,15 +59,21 @@ namespace EditorExtensions.GraphEditor.Actions
             if (evt.type == EventType.MouseDown)
             {
                 _selecting = false;
-                _wasMouseDown = true;
+                _canCreateSelectionBox = !isNodeUnderPoint;
                 _selectionRect.x = evt.mousePosition.x;
                 _selectionRect.y = evt.mousePosition.y;
                 return false;
             }
 
-            if (evt.type == EventType.MouseDrag && _wasMouseDown) _selecting = true;
+            if (evt.type == EventType.MouseDrag && _canCreateSelectionBox)
+            {
+                _selecting = true;
+            }
 
-            if (!_selecting) return false;
+            if (!_selecting)
+            {
+                return false;
+            }
 
             _selectionRect.width = evt.mousePosition.x - _selectionRect.x;
             _selectionRect.height = evt.mousePosition.y - _selectionRect.y;
@@ -77,12 +90,6 @@ namespace EditorExtensions.GraphEditor.Actions
         private void SelectNodesByRect(GraphContext context, Rect selection, Vector2 scroll)
         {
             selection.position -= scroll;
-
-            //Rect.Contains doesn't work properly with negative width and height that's why avoid it
-            selection = new Rect(_selectionRect.xMin + (selection.width < 0 ? selection.width : 0),
-                selection.yMin + (selection.height < 0 ? selection.height : 0),
-                Mathf.Abs(selection.width), Mathf.Abs(selection.height));
-
             var nodesUnderRect = context.GetNodeDrawInfoByRect(selection);
             context.Select(nodesUnderRect);
         }

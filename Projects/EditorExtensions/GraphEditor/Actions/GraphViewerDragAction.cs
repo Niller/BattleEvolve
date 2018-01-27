@@ -63,8 +63,8 @@ namespace EditorExtensions.GraphEditor.Actions
                     node.Position = node.Position + evt.delta;
                     _dragDelta = Vector2.zero;
                     GraphEditorWindow.NeedHandlesRepaint = true;
-                    return true;
                 }
+                return true;
             }
 
             if (_dragDelta != Vector2.zero)
