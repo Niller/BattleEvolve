@@ -10,7 +10,7 @@ namespace EditorExtensions.GraphEditor
             private set;
         }
         public Vector2 Position;
-        public float Radius => 10;
+        public int Radius => 10;
         
         public EventType LastEventType 
         { 

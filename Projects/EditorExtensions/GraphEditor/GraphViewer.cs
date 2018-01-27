@@ -13,6 +13,7 @@ namespace EditorExtensions.GraphEditor
         {
             new GraphViewerContextMenuAction(),
             new GraphViewerKeyboardAction(),
+            new GraphViewerCreateArcAction(), 
             new GraphViewerSelectionAction(),
             new GraphViewerDragAction(), 
             new GraphViewerScrollAction()             

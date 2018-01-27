@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EditorExtensions.GraphEditor.Utilities;
 using Graphs;
 using UnityEditor;
 using UnityEngine;
@@ -11,7 +12,7 @@ namespace EditorExtensions.GraphEditor
     {
         private const int SelectionRadius = 6;
         
-        private Dictionary<int, NodeDrawInfo> _nodeDrawInfos = new Dictionary<int, NodeDrawInfo>();
+        private Dictionary<Node, NodeDrawInfo> _nodeDrawInfos = new Dictionary<Node, NodeDrawInfo>();
         
         public HashSet<NodeDrawInfo> SelectedNodes = new HashSet<NodeDrawInfo>();
 
@@ -35,22 +36,27 @@ namespace EditorExtensions.GraphEditor
         
         public void UpdateDrawInfos(Graph graph)
         {
-            _nodeDrawInfos = new Dictionary<int, NodeDrawInfo>();
-            for (var i = 0; i < graph.Nodes.Count; i++)
+            _nodeDrawInfos = new Dictionary<Node, NodeDrawInfo>();
+            foreach (var node in graph.Nodes)
             {
-                var node = graph.Nodes[i];
-                _nodeDrawInfos[node.Id] = new NodeDrawInfo(node.Id, 50 * i * Vector2.one);
+                _nodeDrawInfos[node] = new NodeDrawInfo(node.Id, Vector2.zero);
             }
         }
 
-        public void AddNode(int id, Vector2 position)
+        public void AddNode(Node node, Vector2 position)
         {
-            _nodeDrawInfos.Add(id, new NodeDrawInfo(id, position));
+            _nodeDrawInfos.Add(node, new NodeDrawInfo(node.Id, position));
         }
 
-        public void RemoveNode(int id)
+        public void RemoveNode(Node node)
         {
-            _nodeDrawInfos.Remove(id);
+            _nodeDrawInfos.Remove(node);
+        }
+
+        //TODO Optimize
+        public Node GetNode(NodeDrawInfo nodeDrawInfo)
+        {
+            return _nodeDrawInfos.FirstOrDefault(n => n.Value == nodeDrawInfo).Key;
         }
         
         //TODO Optimize search
@@ -97,10 +103,36 @@ namespace EditorExtensions.GraphEditor
         
         #endregion
 
-        public void DrawArcs()
+        public void DrawArcs(IEnumerable<Arc> arcs)
         {
-            
+            var drawingContext = DrawingContext.Current;
+            var passedArcs = new HashSet<Arc>();
+            foreach (var arc in arcs)
+            {
+                var nodeFrom = _nodeDrawInfos[arc.From];
+                var nodeTo = _nodeDrawInfos[arc.To];
+                
+                var from = drawingContext.ApplyScroll(nodeFrom.Position);
+                var to = drawingContext.ApplyScroll(nodeTo.Position);
+                
+                var oppositeDirectionArc = arc.To.GetArcTo(arc.From);
+                if (oppositeDirectionArc != null)
+                {
+                    if (arc.From == arc.To)
+                    {
+                        DrawUtilities.DrawLoop(from, nodeTo.Radius);   
+                    }
+                    else
+                    {
+                        DrawUtilities.DrawDirectionalLine(from, to, nodeTo.Radius, true);
+                        passedArcs.Add(oppositeDirectionArc);
+                    }
+                }
+                else
+                {
+                    DrawUtilities.DrawDirectionalLine(from, to, nodeTo.Radius, false);
+                }
+            }
         }
-        
     }
 }

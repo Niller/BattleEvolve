@@ -8,7 +8,8 @@ namespace Graphs
     {
         private int _nodeIndex = 0;
         
-        public readonly List<Node> Nodes = new List<Node>();
+        public readonly HashSet<Node> Nodes = new HashSet<Node>();
+        public readonly HashSet<Arc> Arcs = new HashSet<Arc>();
 
         public Graph()
         {
@@ -29,17 +30,24 @@ namespace Graphs
         
         public Arc AddArc(Node from, Node to)
         {
-            var newArc = new Arc(from, to);
+            if (from.GetArcTo(to) != null)
+            {
+                return null;
+            }
+            
+            var newArc = new Arc(from, to);           
             from.ArcsOut.Add(newArc);
             to.ArcsIn.Add(newArc);
+            Arcs.Add(newArc);
             return newArc;
         }
-
+        
         public void RemoveArc(Node from, Node to)
         {
             var arc = from.ArcsOut.FirstOrDefault(a => a.To == to);
             from.ArcsOut.Remove(arc);
             to.ArcsIn.Remove(arc);
+            Arcs.Remove(arc);
         }
 
         public void RemoveArc(Arc arc)

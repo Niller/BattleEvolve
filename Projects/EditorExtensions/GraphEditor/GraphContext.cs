@@ -55,12 +55,18 @@ namespace EditorExtensions.GraphEditor
         public void AddNode(Vector2 position)
         {
             var node = _graph.AddNode();
-            GraphDrawerSystem.AddNode(node.Id, position);            
+            GraphDrawerSystem.AddNode(node, position);            
+        }
+
+        public void AddArc(NodeDrawInfo nodeFrom, NodeDrawInfo nodeTo)
+        {
+            _graph.AddArc(GraphDrawerSystem.GetNode(nodeFrom), GraphDrawerSystem.GetNode(nodeTo));
         }
 
         public void Draw()
         {
+            GraphDrawerSystem.DrawArcs(_graph.Arcs);
             GraphDrawerSystem.DrawNodes();
-        }      
+        }
     }
 }
