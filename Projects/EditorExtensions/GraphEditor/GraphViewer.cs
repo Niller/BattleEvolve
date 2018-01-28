@@ -1,11 +1,13 @@
 ﻿using EditorExtensions.Controls;
 using EditorExtensions.GraphEditor.Actions;
+using UnityEditor;
 using UnityEngine;
 
 namespace EditorExtensions.GraphEditor
 {
     public class GraphViewer
     {
+        private const int BaseGridCellSize = 30;
 
         private readonly GridDrawer _gridDrawer;
 
@@ -13,6 +15,7 @@ namespace EditorExtensions.GraphEditor
         {
             new GraphViewerContextMenuAction(),
             new GraphViewerKeyboardAction(),
+            new GraphViewerZoomAction(),
             new GraphViewerCreateArcAction(), 
             new GraphViewerNodeSelectionAction(),
             new GraphViewerArcSelectionAction(), 
@@ -28,11 +31,12 @@ namespace EditorExtensions.GraphEditor
             };
         }
         
-        public void DoLayout(Rect rect, GraphContext graphContext)
-        {
+        public void DoLayout(Rect rect)
+        {  
+            _gridDrawer.CellSize = (rect.height/(BaseGridCellSize)*(2f*DrawingContext.Current.Zoom));
             _gridDrawer.Draw(rect, -DrawingContext.Current.Scroll, rect.center);
-
-            graphContext.Draw();
+            
+            DrawingContext.Current.Draw();
             
             foreach (var action in _actions)
             {

@@ -59,6 +59,7 @@
     <Compile Include="GraphEditor\Actions\GraphViewerScrollAction.cs" />
     <Compile Include="GraphEditor\Actions\GraphViewerDragAction.cs" />
     <Compile Include="GraphEditor\Actions\GraphViewerNodeSelectionAction.cs" />
+    <Compile Include="GraphEditor\Actions\GraphViewerZoomAction.cs" />
     <Compile Include="GraphEditor\Actions\IGraphViewerAction.cs" />
     <Compile Include="GraphEditor\DrawingContext.cs" />
     <Compile Include="GraphEditor\GraphContext.cs" />

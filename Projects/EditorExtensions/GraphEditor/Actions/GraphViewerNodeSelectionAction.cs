@@ -83,7 +83,7 @@ namespace EditorExtensions.GraphEditor.Actions
 
             SelectNodesByRect(graphDrawerSystem, _selectionRect, drawingContext.Scroll);
 
-            HandleUtility.Repaint();
+            GraphEditorWindow.NeedHandlesRepaint = true;
             return true;
         }
 

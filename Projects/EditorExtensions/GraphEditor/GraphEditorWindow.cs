@@ -131,8 +131,8 @@ namespace EditorExtensions.GraphEditor
         {
             var mainRect = new Rect(0, TopPanelHeightConst+TopTabsPanelHeightConst, position.width, position.height - TopPanelHeightConst-TopTabsPanelHeightConst);
             GUILayout.BeginArea(mainRect);
-            DrawingContext.Current.Viewport = mainRect;
-            _graphViewer.DoLayout(new Rect(0, 0, position.width, position.height - TopPanelHeightConst-TopTabsPanelHeightConst), _openedGraphs[_currentGraphIndex]);
+            DrawingContext.Current.Viewport = new Rect(0, 0, position.width, position.height - TopPanelHeightConst-TopTabsPanelHeightConst);
+            _graphViewer.DoLayout(DrawingContext.Current.Viewport);
             GUILayout.EndArea();
         }
 

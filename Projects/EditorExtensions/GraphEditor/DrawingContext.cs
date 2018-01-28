@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.VR.WSA;
 
 namespace EditorExtensions.GraphEditor
 {
@@ -36,12 +37,8 @@ namespace EditorExtensions.GraphEditor
         
         #endregion
 
-        /*public DrawingContext()
-        {
-            
-        }*/
-
         private Vector2 _scroll;
+        private float _zoom = 1f;
         
         public Rect Viewport
         {
@@ -58,8 +55,31 @@ namespace EditorExtensions.GraphEditor
             set
             {
                 _scroll = value;
-                //LimitScroll();
-                //HandleUtility.Repaint();
+            }
+        }
+
+        public float Zoom
+        {
+            get
+            {
+                return _zoom;
+            }
+            set
+            {
+                var oldValue = _zoom;
+                _zoom = value;
+                ApplyZoom(oldValue, value);
+                GraphEditorWindow.NeedHandlesRepaint = true;
+            }
+        }
+
+        private void ApplyZoom(float oldZoom, float newZoom)
+        {
+            var deltaZoom = newZoom - oldZoom;
+            var graphContext = GraphContext.Current;
+            foreach (var node in graphContext.GraphDrawerSystem.Nodes)
+            {
+                node.Position += deltaZoom * (node.Position - (Viewport.center - _scroll)) / oldZoom;
             }
         }
 
@@ -67,7 +87,6 @@ namespace EditorExtensions.GraphEditor
         {
             return postion + Scroll;
         }
-
         
         /// <summary>
         /// Current mouse position with scroll
@@ -80,15 +99,7 @@ namespace EditorExtensions.GraphEditor
 
         public void Draw()
         {
-            
-        }
-        
-        private void LimitScroll()
-        {
-            _scroll.x = Mathf.Min(_scroll.x, 0f);
-            _scroll.y = Mathf.Min(_scroll.y, 0f);
-        }
-        
-        
+            GraphContext.Current.Draw();
+        }     
     }
 }

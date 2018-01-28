@@ -18,12 +18,14 @@ namespace EditorExtensions.GraphEditor
         
         public HashSet<NodeDrawInfo> SelectedNodes = new HashSet<NodeDrawInfo>();
 
-        protected IGraphLayoutSystem _graphLayoutSystem;
+        public IEnumerable<NodeDrawInfo> Nodes => _nodeDrawInfos.Values;
+
+        private readonly IGraphLayoutSystem _graphLayoutSystem;
 
         public Arc SelectedArc
         {
             get;
-            set;
+            private set;
         }
 
         public GraphDrawerSystem()
@@ -40,7 +42,7 @@ namespace EditorExtensions.GraphEditor
                 if (SelectedNodes.Contains(drawInfo))
                 {
                     Handles.color = Color.yellow;;
-                    Handles.DrawSolidDisc(drawingPosition, Vector3.forward, drawInfo.Radius + SelectionRadius);
+                    Handles.DrawSolidDisc(drawingPosition, Vector3.forward, drawInfo.Radius + SelectionRadius * DrawingContext.Current.Zoom);
                 }
                 Handles.color = Color.red;
                 Handles.DrawSolidDisc(drawingPosition, Vector3.forward, drawInfo.Radius);
@@ -175,17 +177,17 @@ namespace EditorExtensions.GraphEditor
                 {
                     if (arc.From == arc.To)
                     {
-                        DrawUtilities.DrawLoop(from, nodeTo.Radius, GetArcColor(arc));   
+                        DrawUtilities.DrawLoop(from, nodeTo.Radius, GetArcColor(arc), drawingContext.Zoom);   
                     }
                     else
                     {
-                        DrawUtilities.DrawDirectionalLine(from, to, nodeTo.Radius, GetArcColor(arc), true);
+                        DrawUtilities.DrawDirectionalLine(from, to, nodeTo.Radius, GetArcColor(arc), drawingContext.Zoom, true);
                         passedArcs.Add(oppositeDirectionArc);
                     }
                 }
                 else
                 {
-                    DrawUtilities.DrawDirectionalLine(from, to, nodeTo.Radius, GetArcColor(arc));
+                    DrawUtilities.DrawDirectionalLine(from, to, nodeTo.Radius, GetArcColor(arc), drawingContext.Zoom);
                 }
             }
         }

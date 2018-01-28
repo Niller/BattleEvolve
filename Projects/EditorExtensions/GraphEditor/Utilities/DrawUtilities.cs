@@ -10,7 +10,7 @@ namespace EditorExtensions.GraphEditor.Utilities
         private const float ArrowWidth = 5;
         private const float ArrowHeight = 12;
         
-        public static void DrawDirectionalLine(Vector2 from, Vector2 to, int deltaLength, Color color, bool twoDirections = false)
+        public static void DrawDirectionalLine(Vector2 from, Vector2 to, int deltaLength, Color color, float zoom = 1f, bool twoDirections = false)
         {
             Vector3 forward = (to - from).normalized;
             Vector3 backward = (from - to).normalized;
@@ -27,10 +27,10 @@ namespace EditorExtensions.GraphEditor.Utilities
                 BeginHandlesDrawColor(color);
                 {
                     Handles.DrawAAPolyLine(arrowLine);
-                    Handles.DrawAAConvexPolygon(GetArrowHead(end, forward));
+                    Handles.DrawAAConvexPolygon(GetArrowHead(end, forward, zoom));
                     if (twoDirections)
                     {
-                        Handles.DrawAAConvexPolygon(GetArrowHead(start, backward));
+                        Handles.DrawAAConvexPolygon(GetArrowHead(start, backward, zoom));
                     }
                 }
                 EndHandlesDrawColor();
@@ -38,7 +38,7 @@ namespace EditorExtensions.GraphEditor.Utilities
             Handles.EndGUI();
         }
 
-        public static void DrawLoop(Vector2 fromCenter, int deltaLength, Color color)
+        public static void DrawLoop(Vector2 fromCenter, int deltaLength, Color color, float zoom = 1f)
         {
             const int bezierLineWidth = 2;
             const int bezierDivision = 20;
@@ -63,21 +63,21 @@ namespace EditorExtensions.GraphEditor.Utilities
                 BeginHandlesDrawColor(color);
                 {
                     var arrowDirection = (points[points.Length - 1] - points[points.Length - 2]).normalized;
-                    Handles.DrawAAConvexPolygon(GetArrowHead(to + arrowDirection * ArrowWidth, arrowDirection));
+                    Handles.DrawAAConvexPolygon(GetArrowHead(to + arrowDirection * ArrowWidth, arrowDirection, zoom));
                 }
                 EndHandlesDrawColor();
             }
             Handles.EndGUI();
         }
 
-        private static Vector3[] GetArrowHead(Vector3 edgePos, Vector3 direction)
+        private static Vector3[] GetArrowHead(Vector3 edgePos, Vector3 direction, float zoom = 1f)
         {
             var arrowHead = new Vector3[3];
-            var pos = edgePos - direction * ArrowHeight;
+            var pos = edgePos - direction * ArrowHeight * zoom;
             var right = Vector3.Cross(Vector3.back, direction).normalized;
-            arrowHead[0] = pos + direction * ArrowHeight * 0.75f;
-            arrowHead[1] = pos - direction * ArrowHeight * 0.25f + right * ArrowWidth;
-            arrowHead[2] = pos - direction * ArrowHeight * 0.25f - right * ArrowWidth;
+            arrowHead[0] = pos + direction * ArrowHeight * 0.75f * zoom;
+            arrowHead[1] = pos - direction * ArrowHeight * 0.25f * zoom + right * ArrowWidth * zoom;
+            arrowHead[2] = pos - direction * ArrowHeight * 0.25f * zoom - right * ArrowWidth * zoom;
             return arrowHead;
         }
 
