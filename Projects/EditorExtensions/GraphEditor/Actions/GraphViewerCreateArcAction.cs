@@ -48,7 +48,7 @@ namespace EditorExtensions.GraphEditor.Actions
                         }
                     }
 
-                    DrawUtilities.DrawDirectionalLine(drawingContext.ApplyScroll(_nodeFrom.Position), drawingContext.GetMousePosition(), _nodeFrom.Radius, Color.white);
+                    DrawUtilities.DrawDirectionalLine(drawingContext.ApplyScroll(_nodeFrom.Position), evt.mousePosition, _nodeFrom.Radius, Color.white);
                     GraphEditorWindow.NeedHandlesRepaint = true;
                     return true;
                 }

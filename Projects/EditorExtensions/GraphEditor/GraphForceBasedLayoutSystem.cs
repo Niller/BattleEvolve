@@ -7,223 +7,130 @@ using Random = UnityEngine.Random;
 
 namespace EditorExtensions.GraphEditor
 {
-    public class GraphForceBasedLayoutSystem : IGraphLayoutSystem
-    {
-        private class NodeLayoutInfo 
+    public class GraphForceBasedLayoutSystem : IGraphLayoutSystem {
+        
+        private struct NodeLayoutInfo 
         {
+            public readonly NodeDrawInfo NodeDrawInfo;
+            public readonly Node Node;		
+            public Vector2 Velocity;	
+            public readonly int Mass;  
 
-            public NodeDrawInfo NodeDrawInfo; // reference to draw inforamtion about node
-            public Node Node;			// reference to the node in the simulation
-            public Vector2 Velocity;		// the node's current velocity, expressed in vector form
-            public Vector2 NextPosition;	// the node's position after the next iteration
-            public NodeLayoutInfo[] linkedNodes;
-
-            /// <summary>
-            /// Initialises a new instance of the Diagram.NodeLayoutInfo class, using the specified parameters.
-            /// </summary>
-            /// <param name="node"></param>
-            /// <param name="nodeDrawInfo"></param>
-            /// <param name="velocity"></param>
-            /// <param name="nextPosition"></param>
-            public NodeLayoutInfo(Node node, NodeDrawInfo nodeDrawInfo, Vector2 velocity, Vector2 nextPosition) 
+            public NodeLayoutInfo(Node node, NodeDrawInfo nodeDrawInfo, int mass = 1) 
             {
                 Node = node;
                 NodeDrawInfo = nodeDrawInfo;
-                Velocity = velocity;
-                NextPosition = nextPosition;
-            }
-
-            public void InitializeLinks(Dictionary<Node, NodeLayoutInfo> nodeLayoutInfos)
-            {
-                linkedNodes = Node.ArcsOut.Where(a => a.To != Node).Select(a => nodeLayoutInfos[a.To]).ToArray();
-            }
-        }
-	    
-        private const float ATTRACTION_CONSTANT = 0.1f;		// spring constant
-        private const float REPULSION_CONSTANT = 10000f;	// charge constant
-
-        private const float DEFAULT_DAMPING = 0.5f;
-        private const int DEFAULT_SPRING_LENGTH = 100;
-        private const int DEFAULT_MAX_ITERATIONS = 500;
-	    
-        public void Layout(Dictionary<Node, NodeDrawInfo> nodes)
-        {
-            Arrange(nodes, DEFAULT_DAMPING, DEFAULT_SPRING_LENGTH, DEFAULT_MAX_ITERATIONS, true);
+                Velocity = Vector2.zero;
+                Mass = mass;
+            }        
         }
         
-        public void Arrange(Dictionary<Node, NodeDrawInfo> nodes, float damping, int springLength, int maxIterations, bool deterministic) 
+        public void Layout(Dictionary<Node, NodeDrawInfo> nodes)
         {
-		
+            ApplyForces(nodes, 1000, 1000, 100, 800, 0.5f);
+        }
+
+        private void ApplyForces(Dictionary<Node, NodeDrawInfo> nodes, int pbHeight, int pbWidth, float spring, float charge, float damping)
+        {
             // random starting positions can be made deterministic by seeding System.Random with a constant
             Random.InitState(0);
 
             // copy nodes into an array of metadata and randomise initial coordinates for each node
-            NodeLayoutInfo[] layout = new NodeLayoutInfo[nodes.Count];
-            Dictionary<Node, NodeLayoutInfo> layoutDictionary = new Dictionary<Node, NodeLayoutInfo>();
+            NodeLayoutInfo[] layoutInfos = new NodeLayoutInfo[nodes.Count];
 
             int index = 0;
             foreach (var node in nodes)
             {
-                layout[index] = new NodeLayoutInfo(node.Key, node.Value, new Vector2(), Vector2.zero)
+                layoutInfos[index] = new NodeLayoutInfo(node.Key, node.Value)
                 {
-                    NodeDrawInfo = {Position = new Vector2(Random.value * 500, Random.value * 500)}
+                    NodeDrawInfo =
+                    {
+                        Position = new Vector2(Random.value*pbHeight, Random.value*pbWidth)
+                    }
                 };
-                layoutDictionary.Add(node.Key, layout[index]);
                 index++;
             }
 
-            foreach (var nodeLayoutInfo in layout)
+            float diff = 0;
+            float diff1 = 1;
+            var nodesCount = layoutInfos.Length;
+            
+            while (CheckDisplacement(diff, diff1))
             {
-                nodeLayoutInfo.InitializeLinks(layoutDictionary);
-            }
+                diff1 = diff;
+                diff = 0;
+                
+                for (int i = 0; i < nodesCount; i++)
+                {
+                    var node = layoutInfos[i];
+                    for (int j = 0; j < nodesCount; j++)
+                    {
+                        var otherNode = layoutInfos[j];
+                        if (node.Node != otherNode.Node)
+                        {
+                            
+                            float dx = otherNode.NodeDrawInfo.Position.x - node.NodeDrawInfo.Position.x;
+                            float dy = otherNode.NodeDrawInfo.Position.y - node.NodeDrawInfo.Position.y;
+                            var velocity = new Vector2(dx, dy);
+                            
+                            float hypotenuse = Mathf.Sqrt(Mathf.Pow(dx, 2) + Mathf.Pow(dy, 2));
+                            float force = 0;
+                            if (node.Node.GetArcTo(otherNode.Node) != null || otherNode.Node.GetArcTo(node.Node) != null)
+                            {
+                                force = (hypotenuse - spring)/2.0f;
+                            }
+                            else
+                            {
+                                force = -((node.Mass*otherNode.Mass)/Mathf.Pow(hypotenuse, 2))*charge;
+                            }
 
-            int stopCount = 0;
-            int iterations = 0;
-
-            while (true) {
-                double totalDisplacement = 0;
-
-                for (int i=0; i<layout.Length; i++) {
-                    NodeLayoutInfo current = layout[i];
-
-                    // express the node's current position as a vector, relative to the origin
-                    Vector2 currentPosition = new Vector2(CalcDistance(Vector2.zero, current.NodeDrawInfo.Position), GetBearingAngle(Vector2.zero, current.NodeDrawInfo.Position));
-                    Vector2 netForce = new Vector2(0, 0);
-
-                    // determine repulsion between nodes
-                    foreach (var other in layout) {
-                        if (other != current) netForce += CalcRepulsionForce(current, other);
+                            velocity /= hypotenuse;
+                            velocity *= force;
+                            node.Velocity += velocity;
+                        }
                     }
-
-                    // determine attraction caused by connections
-                    foreach (var child in current.linkedNodes) {
-                        netForce += CalcAttractionForce(current.NodeDrawInfo, child.NodeDrawInfo, springLength);
-                    }
-                    foreach (var parent in layout) {
-                        if (parent.linkedNodes.Any(n => n == current)) netForce += CalcAttractionForce(current.NodeDrawInfo, parent.NodeDrawInfo, springLength);
-                    }
-				
-                    // apply net force to node velocity
-                    current.Velocity = (current.Velocity + netForce) * damping;
-
-                    // apply velocity to node position
-                    current.NextPosition = (currentPosition + current.Velocity);
+                    node.NodeDrawInfo.Position += node.Velocity;
+                    node.Velocity *= damping;
+                    diff += Mathf.Abs(node.Velocity.x) + Mathf.Abs(node.Velocity.y);
                 }
-
-                // move nodes to resultant positions (and calculate total displacement)
-                for (int i = 0; i < layout.Length; i++) {
-                    NodeLayoutInfo current = layout[i];
-
-                    totalDisplacement += CalcDistance(current.NodeDrawInfo.Position, current.NextPosition);
-                    current.NodeDrawInfo.Position = current.NextPosition;
-                }
-
-                iterations++;
-                if (totalDisplacement < 10) stopCount++;
-                if (stopCount > 15) break;
-                if (iterations > maxIterations) break;
             }
-	        
-	        
-
-            // center the diagram around the origin
-            Rect logicalBounds = GetDiagramBounds(layout);
-            Vector2 midPoint = logicalBounds.center;
             
+            AlignCenterNodes(layoutInfos);
+        }
+
+        private void AlignCenterNodes(NodeLayoutInfo[] layoutInfos)
+        {
+            var nodeDrawInfos = layoutInfos.Select(l => l.NodeDrawInfo).ToArray();
+
+            if (nodeDrawInfos.Length == 0)
+            {
+                return;
+            }
             
-            Debug.Log(midPoint);
-            foreach (var node in layout) {
-            	node.NodeDrawInfo.Position -= midPoint;
-                Debug.Log(node.NodeDrawInfo.Position);
-            }
-        }
-        
-        
-        private Rect GetDiagramBounds(NodeLayoutInfo[] layout) {
-            float minX = float.MaxValue, minY = float.MaxValue;
-            float maxX = float.MinValue, maxY = float.MinValue;
-            foreach (var node in layout) {
-                if (node.NodeDrawInfo.Position.x < minX) minX = node.NodeDrawInfo.Position.x;
-                if (node.NodeDrawInfo.Position.x  > maxX) maxX = node.NodeDrawInfo.Position.x;
-                if (node.NodeDrawInfo.Position.y < minY) minY = node.NodeDrawInfo.Position.y;
-                if (node.NodeDrawInfo.Position.y > maxY) maxY = node.NodeDrawInfo.Position.y;
+            var minX = (int) nodeDrawInfos[0].Position.x;
+            var minY = (int) nodeDrawInfos[0].Position.y;
+            var maxX = (int) nodeDrawInfos[0].Position.x;
+            var maxY = (int) nodeDrawInfos[0].Position.y;
+            
+            foreach (var n in nodeDrawInfos)
+            {
+                if (n.Position.x < minX) minX = (int) n.Position.x;
+                if (n.Position.y < minY) minY = (int) n.Position.y;
+                if (n.Position.x > maxX) maxX = (int) n.Position.x;
+                if (n.Position.y > maxY) maxY = (int) n.Position.y;
             }
 
-            return new Rect(minX, minY, maxX - minX, maxY - minY);
-        }
-	    
-        /// <summary>
-        /// Calculates the bearing angle from one point to another.
-        /// </summary>
-        /// <param name="start">The node that the angle is measured from.</param>
-        /// <param name="end">The node that creates the angle.</param>
-        /// <returns>The bearing angle, in degrees.</returns>
-        private float GetBearingAngle(Vector2 start, Vector2 end) {
-            Vector2 half = new Vector2(start.x + ((end.x - start.x) / 2), start.y + ((end.y - start.y) / 2));
-
-            float diffX = half.x - start.x;
-            float diffY = half.y - start.y;
-
-            if (diffX == 0) diffX = 0.001f;
-            if (diffY == 0) diffY = 0.001f;
-
-            double angle;
-            if (Mathf.Abs(diffX) > Mathf.Abs(diffY)) {
-                angle = System.Math.Tanh(diffY / diffX) * (180.0 / System.Math.PI);
-                if (((diffX < 0) && (diffY > 0)) || ((diffX < 0) && (diffY < 0))) angle += 180;
+            var rect = new Rect(minX, minY, maxX - minX, maxY - minY);
+            foreach (var nodeLayoutInfo in nodeDrawInfos)
+            {
+                nodeLayoutInfo.Position -= rect.center;
+                nodeLayoutInfo.Position += DrawingContext.Current.Viewport.center;
             }
-            else {
-                angle = System.Math.Tanh(diffX / diffY) * (180.0 / System.Math.PI);
-                if (((diffY < 0) && (diffX > 0)) || ((diffY < 0) && (diffX < 0))) angle += 180;
-                angle = (180 - (angle + 90));
-            }
-
-            return (float)angle;
-        }
-	    
-        /// <summary>
-        /// Calculates the attraction force between two connected nodes, using the specified spring length.
-        /// </summary>
-        /// <param name="x">The node that the force is acting on.</param>
-        /// <param name="y">The node creating the force.</param>
-        /// <param name="springLength">The length of the spring, in pixels.</param>
-        /// <returns>A Vector representing the attraction force.</returns>
-        private Vector2 CalcAttractionForce(NodeDrawInfo x, NodeDrawInfo y, float springLength) {
-            int proximity = Mathf.Max(CalcDistance(x.Position, y.Position), 1);
-
-            // Hooke's Law: F = -kx
-            float force = ATTRACTION_CONSTANT * Mathf.Max(proximity - springLength, 0);
-            float angle = GetBearingAngle(x.Position, y.Position);
-
-            return new Vector2(force, angle);
         }
 
-        /// <summary>
-        /// Calculates the distance between two points.
-        /// </summary>
-        /// <param name="a">The first point.</param>
-        /// <param name="b">The second point.</param>
-        /// <returns>The pixel distance between the two points.</returns>
-        public static int CalcDistance(Vector2 a, Vector2 b) {
-            float xDist = (a.x - b.x);
-            float yDist = (a.y - b.y);
-            return (int)Mathf.Sqrt(Mathf.Pow(xDist, 2) + Mathf.Pow(yDist, 2));
-        }
-
-        /// <summary>
-        /// Calculates the repulsion force between any two nodes in the diagram space.
-        /// </summary>
-        /// <param name="x">The node that the force is acting on.</param>
-        /// <param name="y">The node creating the force.</param>
-        /// <returns>A Vector representing the repulsion force.</returns>
-        private Vector2 CalcRepulsionForce(NodeLayoutInfo x, NodeLayoutInfo y) {
-            int proximity = Mathf.Max(CalcDistance(x.NodeDrawInfo.Position, y.NodeDrawInfo.Position), 1);
-
-            // Coulomb's Law: F = k(Qq/r^2)
-            float force = -(REPULSION_CONSTANT / Mathf.Pow(proximity, 2));
-            float angle = GetBearingAngle(x.NodeDrawInfo.Position, y.NodeDrawInfo.Position);
-
-            return new Vector2(force, angle);
+        private bool CheckDisplacement(float diff, float diff1)
+        {
+            return (Mathf.Abs(diff - diff1) > 0.0001 && Mathf.Abs(diff - diff1) < 10000) || diff > 1;
         }
     }
 }

@@ -54,8 +54,9 @@ namespace EditorExtensions.GraphEditor
 
         private GraphViewer _graphViewer;
         private Tabs _graphTabs;
-
-        public GraphEditorWindow()
+        
+        [UsedImplicitly]
+        private void OnEnable()
         {
             _openedGraphs.Add(new GraphContext()
             {
@@ -63,11 +64,7 @@ namespace EditorExtensions.GraphEditor
             });
 
             _currentGraphIndex = 0;
-        }
-        
-        [UsedImplicitly]
-        private void OnEnable()
-        {
+            
             wantsMouseEnterLeaveWindow = true;
             
             DrawingContext.Create();
@@ -88,8 +85,6 @@ namespace EditorExtensions.GraphEditor
             {
                 Name = "new Graph" + _openedGraphs.Count
             });
-            _graphTabs.AddTab();
-            NeedRepaint = true;
         }
 
         private void AddGraphContext(GraphContext graphContext)

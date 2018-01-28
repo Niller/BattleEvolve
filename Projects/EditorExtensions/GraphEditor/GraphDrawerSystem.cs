@@ -56,6 +56,7 @@ namespace EditorExtensions.GraphEditor
             {
                 _nodeDrawInfos[node] = new NodeDrawInfo(node.Id, Vector2.zero);
             }
+            Layout();
         }
 
         public void AddNode(Node node, Vector2 position)
