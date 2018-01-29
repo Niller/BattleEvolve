@@ -6,18 +6,22 @@ using UnityEditor;
 using UnityEngine;
 using Utilities.Extensions;
 
-namespace EditorExtensions.GraphEditor
+namespace EditorExtensions.GraphEditor.Drawing
 {
-    public class GraphDrawerSystem
+    public class GraphDrawerSystem : IGraphDrawerSystem
     {
         private const int SelectionRadius = 6;
         private const int SelectionArcDistanceThreshold = 15;
 
         private Dictionary<Node, NodeDrawInfo> _nodeDrawInfos = new Dictionary<Node, NodeDrawInfo>();
-        
-        public HashSet<NodeDrawInfo> SelectedNodes = new HashSet<NodeDrawInfo>();
 
-        public IEnumerable<NodeDrawInfo> Nodes => _nodeDrawInfos.Values;
+        public HashSet<INodeDrawInfo> SelectedNodes
+        {
+            get;
+            private set;
+        }
+
+        public IEnumerable<INodeDrawInfo> Nodes => _nodeDrawInfos.Values.Cast<INodeDrawInfo>();
 
         private readonly IGraphLayoutSystem _graphLayoutSystem;
 
@@ -30,6 +34,7 @@ namespace EditorExtensions.GraphEditor
         public GraphDrawerSystem()
         {
             _graphLayoutSystem = new GraphForceBasedLayoutSystem();
+            SelectedNodes = new HashSet<INodeDrawInfo>();
         }
 
         public void DrawNodes()
@@ -71,13 +76,13 @@ namespace EditorExtensions.GraphEditor
         }
 
         //TODO Optimize
-        public Node GetNode(NodeDrawInfo nodeDrawInfo)
+        public Node GetNode(INodeDrawInfo nodeDrawInfo)
         {
             return _nodeDrawInfos.FirstOrDefault(n => n.Value == nodeDrawInfo).Key;
         }
         
         //TODO Optimize search
-        public bool GetNodeDrawInfoByPosition(Vector2 position, out NodeDrawInfo drawInfo)
+        public bool GetNodeDrawInfoByPosition(Vector2 position, out INodeDrawInfo drawInfo)
         {
             foreach (var nodeDrawInfo in _nodeDrawInfos.Values)
             {
@@ -91,9 +96,9 @@ namespace EditorExtensions.GraphEditor
             return false;
         }
         
-        public HashSet<NodeDrawInfo> GetNodeDrawInfoByRect(Rect rect)
+        public HashSet<INodeDrawInfo> GetNodeDrawInfoByRect(Rect rect)
         {
-            return _nodeDrawInfos.Values.Where(n => rect.Contains(n.Position, true)).ToHashSet();
+            return _nodeDrawInfos.Values.Where(n => rect.Contains(n.Position, true)).Cast<INodeDrawInfo>().ToHashSet();
         }
 
         //TODO Optimize search
@@ -116,21 +121,21 @@ namespace EditorExtensions.GraphEditor
             return false;
         }
 
-        private bool CheckDistanceFromPointToLoop(Vector2 p, NodeDrawInfo nodeDrawInfo)
+        private bool CheckDistanceFromPointToLoop(Vector2 p, INodeDrawInfo nodeDrawInfo)
         {
+            var drawInfo = nodeDrawInfo as NodeDrawInfo;
+            
             Vector3 fromDirection = Vector3.down;
             Vector3 toDirection = Vector3.right;;
 
-            var from = (Vector3)nodeDrawInfo.Position + fromDirection * nodeDrawInfo.Radius;
-            var to = (Vector3)nodeDrawInfo.Position + toDirection * nodeDrawInfo.Radius;
+            var from = (Vector3)nodeDrawInfo.Position + fromDirection * drawInfo.Radius;
+            var to = (Vector3)nodeDrawInfo.Position + toDirection * drawInfo.Radius;
 
-            var tangentDistance = nodeDrawInfo.Radius * 4;
+            var tangentDistance = drawInfo.Radius * 4;
             
             var startTangent = from + fromDirection * tangentDistance;
             var endTangent = from + toDirection * tangentDistance;
 
-            
-            //return Vector2.Distance((Vector3)nodeDrawInfo.Position + (Vector3.down + Vector3.right)  * nodeDrawInfo.Radius, p) < SelectionArcDistance;
             return HandleUtility.DistancePointBezier(p, from, to, startTangent, endTangent) < SelectionArcDistanceThreshold * DrawingContext.Current.Zoom;
         }
 
@@ -145,18 +150,18 @@ namespace EditorExtensions.GraphEditor
 
         #region selection
         
-        public void Select(NodeDrawInfo node)
+        public void Select(INodeDrawInfo node)
         {
             SelectedNodes.Add(node);
             DeselectArc();                        
         }
         
-        public void Select(HashSet<NodeDrawInfo> nodes)
+        public void Select(HashSet<INodeDrawInfo> nodes)
         {
-            SelectedNodes = new HashSet<NodeDrawInfo>(nodes);
+            SelectedNodes = new HashSet<INodeDrawInfo>(nodes);
         }
 
-        public void Deselect(NodeDrawInfo node)
+        public void Deselect(INodeDrawInfo node)
         {
             SelectedNodes.Remove(node);
         }
@@ -195,24 +200,44 @@ namespace EditorExtensions.GraphEditor
                 {
                     if (arc.From == arc.To)
                     {
-                        DrawUtilities.DrawLoop(from, nodeTo.Radius, GetArcColor(arc), drawingContext.Zoom);   
+                        DrawLoop(nodeFrom, arc == SelectedArc);   
                     }
                     else
                     {
-                        DrawUtilities.DrawDirectionalLine(from, to, nodeTo.Radius, GetArcColor(arc), drawingContext.Zoom, true);
+                        DrawArc(nodeFrom, nodeTo, arc == SelectedArc, true);
                         passedArcs.Add(oppositeDirectionArc);
                     }
                 }
                 else
                 {
-                    DrawUtilities.DrawDirectionalLine(from, to, nodeTo.Radius, GetArcColor(arc), drawingContext.Zoom);
+                    DrawArc(nodeFrom, nodeTo,arc == SelectedArc);
                 }
             }
         }
 
-        private Color GetArcColor(Arc arc)
+        public void DrawLoop(INodeDrawInfo node, bool isSelected)
         {
-            return arc == SelectedArc ? Color.yellow : Color.white;
+            var drawInfo = node as NodeDrawInfo;
+            DrawUtilities.DrawLoop(DrawingContext.Current.ApplyScroll(node.Position), drawInfo.Radius, GetArcColor(isSelected), DrawingContext.Current.Zoom);
+        }
+
+        public void DrawArc(INodeDrawInfo from, Vector2 to, bool isSelected, bool isTwoDirectional = false)
+        {
+            var fromNodeDrawInfo = from as NodeDrawInfo;
+            DrawUtilities.DrawDirectionalLine(DrawingContext.Current.ApplyScroll(from.Position), to, fromNodeDrawInfo.Radius, GetArcColor(isSelected), 
+                DrawingContext.Current.Zoom, isTwoDirectional);
+        }
+        
+        public void DrawArc(INodeDrawInfo from, INodeDrawInfo to, bool isSelected, bool isTwoDirectional = false)
+        {
+            var toNodeDrawInfo = to as NodeDrawInfo;
+            DrawUtilities.DrawDirectionalLine(DrawingContext.Current.ApplyScroll(from.Position), 
+                DrawingContext.Current.ApplyScroll(to.Position), toNodeDrawInfo.Radius, GetArcColor(isSelected), DrawingContext.Current.Zoom, isTwoDirectional);
+        }
+
+        private Color GetArcColor(bool isSelected)
+        {
+            return isSelected ? Color.yellow : Color.white;
         }
 
         public void Layout()

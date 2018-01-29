@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using EditorExtensions.GraphEditor.Drawing;
 using EditorExtensions.Utilities;
 using Graphs;
 using UnityEngine;
@@ -26,7 +27,7 @@ namespace EditorExtensions.GraphEditor
         private readonly Graph _graph;
         private string _currentPath;
         
-        public GraphDrawerSystem GraphDrawerSystem
+        public IGraphDrawerSystem GraphDrawerSystem
         {
             get;
             private set;
@@ -76,9 +77,9 @@ namespace EditorExtensions.GraphEditor
             GraphDrawerSystem.AddNode(node, position);            
         }
 
-        public void AddArc(NodeDrawInfo nodeFrom, NodeDrawInfo nodeTo)
+        public void AddArc(Node nodeFrom, Node nodeTo)
         {
-            _graph.AddArc(GraphDrawerSystem.GetNode(nodeFrom), GraphDrawerSystem.GetNode(nodeTo));
+            _graph.AddArc(nodeFrom, nodeTo);
         }
 
         public void Draw()

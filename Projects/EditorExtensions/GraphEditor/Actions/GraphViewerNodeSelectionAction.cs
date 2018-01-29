@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using EditorExtensions.GraphEditor.Drawing;
+using UnityEditor;
 using UnityEngine;
 
 namespace EditorExtensions.GraphEditor.Actions
@@ -21,7 +22,7 @@ namespace EditorExtensions.GraphEditor.Actions
             bool isNodeUnderPoint = false;
             if (evt.type == EventType.MouseDown)
             {
-                NodeDrawInfo nodeUnderPoint;
+                INodeDrawInfo nodeUnderPoint;
                 if (!graphDrawerSystem.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeUnderPoint))
                 {
                     GraphEditorWindow.NeedHandlesRepaint = true;
@@ -87,7 +88,7 @@ namespace EditorExtensions.GraphEditor.Actions
             return true;
         }
 
-        private void SelectNodesByRect(GraphDrawerSystem graphDrawerSystem, Rect selection, Vector2 scroll)
+        private void SelectNodesByRect(IGraphDrawerSystem graphDrawerSystem, Rect selection, Vector2 scroll)
         {
             selection.position -= scroll;
             var nodesUnderRect = graphDrawerSystem.GetNodeDrawInfoByRect(selection);

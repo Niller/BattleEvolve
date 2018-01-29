@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Graphs;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace EditorExtensions.GraphEditor
+namespace EditorExtensions.GraphEditor.Drawing
 {
     public class GraphForceBasedLayoutSystem : IGraphLayoutSystem {
         

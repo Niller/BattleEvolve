@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EditorExtensions.GraphEditor.Drawing;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,7 +34,7 @@ namespace EditorExtensions.GraphEditor.Actions
             {
                 _dragDelta = Vector2.zero;
                 _isDragging = true;
-                NodeDrawInfo nodeByPosition;
+                INodeDrawInfo nodeByPosition;
                 if (!graphDrawerSystem.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeByPosition))
                 {
                     graphDrawerSystem.CleanUpSelection();
@@ -49,7 +50,7 @@ namespace EditorExtensions.GraphEditor.Actions
 
                 if (!_isDragging)
                 {
-                    NodeDrawInfo nodeByPosition;
+                    INodeDrawInfo nodeByPosition;
                     if (!graphDrawerSystem.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeByPosition))
                     {
                         return false;

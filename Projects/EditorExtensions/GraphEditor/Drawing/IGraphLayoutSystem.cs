@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using Graphs;
-using UnityEngine.Assertions.Must;
 
-namespace EditorExtensions.GraphEditor
+namespace EditorExtensions.GraphEditor.Drawing
 {
     public interface IGraphLayoutSystem
     {

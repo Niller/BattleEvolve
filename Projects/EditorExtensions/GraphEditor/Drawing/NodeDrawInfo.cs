@@ -1,9 +1,8 @@
-﻿using System.Runtime.InteropServices;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace EditorExtensions.GraphEditor
+namespace EditorExtensions.GraphEditor.Drawing
 {
-    public class NodeDrawInfo
+    public class NodeDrawInfo : INodeDrawInfo
     {
         private int _radius = 10;
         
@@ -12,7 +11,12 @@ namespace EditorExtensions.GraphEditor
             get;
             private set;
         }
-        public Vector2 Position;
+
+        public Vector2 Position
+        {
+            get;
+            set;
+        }
 
         public int Radius
         {

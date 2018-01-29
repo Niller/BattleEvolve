@@ -1,4 +1,5 @@
-﻿using EditorExtensions.GraphEditor.Utilities;
+﻿using EditorExtensions.GraphEditor.Drawing;
+using EditorExtensions.GraphEditor.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace EditorExtensions.GraphEditor.Actions
     public class GraphViewerCreateArcAction : IGraphViewerAction
     {
         private bool _creatingArc;
-        private NodeDrawInfo _nodeFrom;
+        private INodeDrawInfo _nodeFrom;
 
         public bool TryExecute()
         {
@@ -19,7 +20,7 @@ namespace EditorExtensions.GraphEditor.Actions
             {
                 if (evt.type == EventType.mouseDown)
                 {
-                    NodeDrawInfo nodeDrawInfo;
+                    INodeDrawInfo nodeDrawInfo;
                     if (graphDrawerSystem.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeDrawInfo))
                     {
                         _creatingArc = true;
@@ -37,18 +38,18 @@ namespace EditorExtensions.GraphEditor.Actions
 
                 if (_creatingArc)
                 {
-                    NodeDrawInfo nodeDrawInfo;
+                    INodeDrawInfo nodeDrawInfo;
                     if (graphDrawerSystem.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeDrawInfo))
                     {
                         if (nodeDrawInfo == _nodeFrom)
                         {
-                            DrawUtilities.DrawLoop(drawingContext.ApplyScroll(_nodeFrom.Position), _nodeFrom.Radius, Color.white, drawingContext.Zoom);
+                            graphDrawerSystem.DrawLoop(_nodeFrom, false);
                             GraphEditorWindow.NeedHandlesRepaint = true;
                             return true;
                         }
                     }
 
-                    DrawUtilities.DrawDirectionalLine(drawingContext.ApplyScroll(_nodeFrom.Position), evt.mousePosition, _nodeFrom.Radius, Color.white, drawingContext.Zoom);
+                    graphDrawerSystem.DrawArc(_nodeFrom, evt.mousePosition, false);
                     GraphEditorWindow.NeedHandlesRepaint = true;
                     return true;
                 }
@@ -67,15 +68,15 @@ namespace EditorExtensions.GraphEditor.Actions
             return false;
         }
         
-        private void TryCreateArc(GraphDrawerSystem graphDrawerSystem, DrawingContext drawingContext)
+        private void TryCreateArc(IGraphDrawerSystem graphDrawerSystem, DrawingContext drawingContext)
         {
             var graphContext = GraphContext.Current;
             
-            NodeDrawInfo nodeDrawInfo;
+            INodeDrawInfo nodeDrawInfo;
             if (graphDrawerSystem.GetNodeDrawInfoByPosition(drawingContext.GetMousePosition(), out nodeDrawInfo))
             {
                 var nodeTo = nodeDrawInfo;
-                graphContext.AddArc(_nodeFrom, nodeTo);
+                graphContext.AddArc(graphDrawerSystem.GetNode(_nodeFrom), graphDrawerSystem.GetNode(nodeTo));
             }
         }
     }
