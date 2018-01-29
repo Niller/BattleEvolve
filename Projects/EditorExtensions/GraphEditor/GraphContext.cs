@@ -92,6 +92,11 @@ namespace EditorExtensions.GraphEditor
             if (GraphDrawerSystem.SelectedArc != null)
             {
                 _graph.RemoveArc(GraphDrawerSystem.SelectedArc);
+                var oppositeArc = GraphDrawerSystem.SelectedArc.To.GetArcTo(GraphDrawerSystem.SelectedArc.From);
+                if (oppositeArc != null)
+                {
+                    _graph.RemoveArc(oppositeArc);
+                }
                 GraphDrawerSystem.DeselectArc();
             }
 

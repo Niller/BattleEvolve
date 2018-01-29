@@ -21,10 +21,9 @@ namespace EditorExtensions.GraphEditor.Actions
                     GraphEditorWindow.NeedHandlesRepaint = true;
                     return true;
                 }
-                else
-                {
-                    graphDrawerSystem.DeselectArc();
-                }
+
+                graphDrawerSystem.DeselectArc();
+                GraphEditorWindow.NeedHandlesRepaint = true;
             }
 
             return false;

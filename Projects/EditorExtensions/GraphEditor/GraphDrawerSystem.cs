@@ -2,7 +2,6 @@
 using System.Linq;
 using EditorExtensions.GraphEditor.Utilities;
 using Graphs;
-using Math;
 using UnityEditor;
 using UnityEngine;
 using Utilities.Extensions;
@@ -12,7 +11,7 @@ namespace EditorExtensions.GraphEditor
     public class GraphDrawerSystem
     {
         private const int SelectionRadius = 6;
-        private const int SelectionArcDistance = 15;
+        private const int SelectionArcDistanceThreshold = 15;
 
         private Dictionary<Node, NodeDrawInfo> _nodeDrawInfos = new Dictionary<Node, NodeDrawInfo>();
         
@@ -119,15 +118,29 @@ namespace EditorExtensions.GraphEditor
 
         private bool CheckDistanceFromPointToLoop(Vector2 p, NodeDrawInfo nodeDrawInfo)
         {
-            return Vector2.Distance((Vector3)nodeDrawInfo.Position + (Vector3.down + Vector3.right)  * nodeDrawInfo.Radius, p) < SelectionArcDistance;
+            Vector3 fromDirection = Vector3.down;
+            Vector3 toDirection = Vector3.right;;
+
+            var from = (Vector3)nodeDrawInfo.Position + fromDirection * nodeDrawInfo.Radius;
+            var to = (Vector3)nodeDrawInfo.Position + toDirection * nodeDrawInfo.Radius;
+
+            var tangentDistance = nodeDrawInfo.Radius * 4;
+            
+            var startTangent = from + fromDirection * tangentDistance;
+            var endTangent = from + toDirection * tangentDistance;
+
+            
+            //return Vector2.Distance((Vector3)nodeDrawInfo.Position + (Vector3.down + Vector3.right)  * nodeDrawInfo.Radius, p) < SelectionArcDistance;
+            return HandleUtility.DistancePointBezier(p, from, to, startTangent, endTangent) < SelectionArcDistanceThreshold * DrawingContext.Current.Zoom;
         }
 
         private bool ChectDistanceFromPointToArc(Vector2 p, Arc arc)
         {
+            
             var p0 = _nodeDrawInfos[arc.From].Position;
             var p1 = _nodeDrawInfos[arc.To].Position;
-            var distance = Geometry.DistancePointLine(p, p0, p1);
-            return distance < SelectionArcDistance;
+            var distance = HandleUtility.DistancePointToLineSegment(p, p0, p1);
+            return distance < SelectionArcDistanceThreshold * DrawingContext.Current.Zoom;
         }
 
         #region selection
@@ -166,6 +179,11 @@ namespace EditorExtensions.GraphEditor
             var passedArcs = new HashSet<Arc>();
             foreach (var arc in arcs)
             {
+                if (passedArcs.Contains(arc))
+                {
+                    continue;
+                }
+
                 var nodeFrom = _nodeDrawInfos[arc.From];
                 var nodeTo = _nodeDrawInfos[arc.To];
                 
