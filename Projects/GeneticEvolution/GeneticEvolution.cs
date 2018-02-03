@@ -9,17 +9,18 @@ namespace GeneticEvolution
         protected readonly List<List<Phenotype<TPhenotype>>> Generations = new List<List<Phenotype<TPhenotype>>>();
         protected int CurrentGeneration;
 
-        private int _maxGenerations;
-        private float _solutionThreshold;
+        private readonly int _maxGenerations;
+        private readonly float _solutionThreshold;
 
         private Phenotype<TPhenotype> _bestSolution;
-        
-        public void Create(List<TPhenotype> zeroGeneration, int maxGenerations, float solutionThreshold)
+
+        protected GeneticEvolution(List<TPhenotype> zeroGeneration, int maxGenerations, float solutionThreshold)
         {
             _maxGenerations = maxGenerations;
             _solutionThreshold = solutionThreshold;
-            
+
             Generations.Add(zeroGeneration.Select(p => new Phenotype<TPhenotype>(p)).ToList());
+            _bestSolution = Generations[0].First();
         }
 
         public Phenotype<TPhenotype> Run()
@@ -27,20 +28,19 @@ namespace GeneticEvolution
             while (!CheckEndEvolution())
             {
                 ProcessCurrentGeneration();
-                CurrentGeneration++;    
-            }
+            }            
             
             return _bestSolution;
         }
 
         private void ProcessCurrentGeneration()
         {
-            CalculateFitness();
-            
             var newGeneration = new List<Phenotype<TPhenotype>>();
             
-            newGeneration.AddRange(DoSelections());
-            newGeneration.AddRange(DoMutations());
+            newGeneration.AddRange(DoSelections(Generations[CurrentGeneration]));
+            newGeneration.AddRange(DoMutations(Generations[CurrentGeneration]));
+            
+            CalculateFitness(newGeneration);
 
             foreach (var phenotype in newGeneration)
             {
@@ -54,9 +54,9 @@ namespace GeneticEvolution
             CurrentGeneration++;
         }
 
-        protected abstract List<Phenotype<TPhenotype>> DoSelections();
+        protected abstract List<Phenotype<TPhenotype>> DoSelections(List<Phenotype<TPhenotype>> generation);
 
-        protected abstract List<Phenotype<TPhenotype>> DoMutations();
+        protected abstract List<Phenotype<TPhenotype>> DoMutations(List<Phenotype<TPhenotype>> generation);
 
         protected abstract float GetFitness(TPhenotype phenotype);
 
@@ -65,10 +65,9 @@ namespace GeneticEvolution
             return CurrentGeneration > _maxGenerations || _bestSolution.Fitness <= _solutionThreshold;
         }
 
-        private void CalculateFitness()
+        private void CalculateFitness(List<Phenotype<TPhenotype>> generation)
         {
-            var currentGeneration = Generations[CurrentGeneration];
-            foreach (var phenotype in currentGeneration)
+            foreach (var phenotype in generation)
             {
                 phenotype.Fitness = GetFitness(phenotype.Data);
             }
