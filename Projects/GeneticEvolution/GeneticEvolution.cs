@@ -4,37 +4,22 @@ using System.Linq;
 
 namespace GeneticEvolution
 {
-    public class GeneticEvolution<TPhenotype>
+    public abstract class GeneticEvolution<TPhenotype>
     {
-        private List<List<Phenotype<TPhenotype>>> _generations = new List<List<Phenotype<TPhenotype>>>();
-        private int _currentGeneration;
-
-        private Action<List<Phenotype<TPhenotype>>, int, List<TPhenotype>> _selection;
-        private Action<List<Phenotype<TPhenotype>>, int, List<TPhenotype>> _mutation;
-        private Func<TPhenotype, float> _fitnessFunction;
+        protected readonly List<List<Phenotype<TPhenotype>>> Generations = new List<List<Phenotype<TPhenotype>>>();
+        protected int CurrentGeneration;
 
         private int _maxGenerations;
         private float _solutionThreshold;
 
         private Phenotype<TPhenotype> _bestSolution;
         
-        public void Create(List<TPhenotype> zeroGeneration, Func<TPhenotype, float> fitnessFunction,
-            Action<List<Phenotype<TPhenotype>>, int, List<TPhenotype>> selection,
-            Action<List<Phenotype<TPhenotype>>, int, List<TPhenotype>> mutation, int maxGenerations, float solutionThreshold)
+        public void Create(List<TPhenotype> zeroGeneration, int maxGenerations, float solutionThreshold)
         {
-            if (_fitnessFunction == null)
-            {
-                throw new ArgumentException("Fitness function must be not null");
-            }
-            
-            _fitnessFunction = fitnessFunction;
-            _selection = selection;
-            _mutation = mutation;
-
             _maxGenerations = maxGenerations;
             _solutionThreshold = solutionThreshold;
             
-            _generations.Add(zeroGeneration.Select(p => new Phenotype<TPhenotype>(p)).ToList());
+            Generations.Add(zeroGeneration.Select(p => new Phenotype<TPhenotype>(p)).ToList());
         }
 
         public Phenotype<TPhenotype> Run()
@@ -42,7 +27,7 @@ namespace GeneticEvolution
             while (!CheckEndEvolution())
             {
                 ProcessCurrentGeneration();
-                _currentGeneration++;    
+                CurrentGeneration++;    
             }
             
             return _bestSolution;
@@ -50,20 +35,42 @@ namespace GeneticEvolution
 
         private void ProcessCurrentGeneration()
         {
+            CalculateFitness();
             
+            var newGeneration = new List<Phenotype<TPhenotype>>();
+            
+            newGeneration.AddRange(DoSelections());
+            newGeneration.AddRange(DoMutations());
+
+            foreach (var phenotype in newGeneration)
+            {
+                if (phenotype.Fitness <= _bestSolution.Fitness)
+                {
+                    _bestSolution = phenotype;
+                }
+            }
+            
+            Generations.Add(newGeneration);           
+            CurrentGeneration++;
         }
+
+        protected abstract List<Phenotype<TPhenotype>> DoSelections();
+
+        protected abstract List<Phenotype<TPhenotype>> DoMutations();
+
+        protected abstract float GetFitness(TPhenotype phenotype);
 
         private bool CheckEndEvolution()
         {
-            return _currentGeneration > _maxGenerations || _bestSolution.Fitness <= _solutionThreshold;
+            return CurrentGeneration > _maxGenerations || _bestSolution.Fitness <= _solutionThreshold;
         }
 
         private void CalculateFitness()
         {
-            var currentGeneration = _generations[_currentGeneration];
+            var currentGeneration = Generations[CurrentGeneration];
             foreach (var phenotype in currentGeneration)
             {
-                phenotype.Fitness = _fitnessFunction.Invoke(phenotype.Data);
+                phenotype.Fitness = GetFitness(phenotype.Data);
             }
         }
         
