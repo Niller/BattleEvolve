@@ -20,7 +20,9 @@ namespace GeneticEvolution
             _solutionThreshold = solutionThreshold;
 
             Generations.Add(zeroGeneration.Select(p => new Phenotype<TPhenotype>(p)).ToList());
-            _bestSolution = Generations[0].First();
+            
+            CalculateFitness(Generations[0]);
+            _bestSolution = Generations[0].OrderBy(p => p.Fitness).First();
         }
 
         public Phenotype<TPhenotype> Run()

@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GeneticAlgorithms\FunctionExtremePointsGeneticAlgorithm1.cs" />
+    <Compile Include="GeneticAlgorithms\FunctionExtremePointsGeneticAlgorithm2.cs" />
     <Compile Include="GeneticEvolutionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -21,5 +21,19 @@ namespace Tests
             var result = genEvolution.Run();
             Console.WriteLine(result);
         }
+        
+        [Test]
+        public void FunctionExtremeTest2()
+        {
+            var genEvolution = new FunctionExtremePointsGeneticAlgorithm2(new List<Vector2>()
+            {
+                Vector2.one,
+                Vector2.zero,
+                Vector2.left,
+                Vector2.right
+            }, 600, float.MinValue);
+            var result = genEvolution.Run();
+            Console.WriteLine(result);
+        }
     }
 }
