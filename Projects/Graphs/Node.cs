@@ -1,12 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Graphs.Tags;
 using Utilities;
 
 namespace Graphs
 {
     public class Node
     {
+        public IGraphTag Tag
+        {
+            get;
+            private set;
+        }
+        
         public uint Id
         {
             get;
@@ -16,9 +23,10 @@ namespace Graphs
         public readonly HashSet<Arc> ArcsOut = new HashSet<Arc>();
         public readonly HashSet<Arc> ArcsIn = new HashSet<Arc>();
         
-        public Node(uint id)
+        public Node(uint id, IGraphTag tag)
         {
             Id = id;
+            Tag = tag;
         }
 
         public Arc GetArcTo(Node node)

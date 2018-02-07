@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using Graphs.Tags;
 using ISerializable = Utilities.ISerializable;
 
 namespace Graphs
@@ -12,7 +13,7 @@ namespace Graphs
         public static uint Signature = 999;
         
         private uint _nodeIndex = 0;
-        
+
         public readonly HashSet<Node> Nodes = new HashSet<Node>();
         public readonly HashSet<Arc> Arcs = new HashSet<Arc>();
 
@@ -23,46 +24,50 @@ namespace Graphs
 
         public Graph(Graph graph)
         {
-            
+            throw new NotImplementedException();
         }
         
-        public Node AddNode()
+        private Node AddNode(uint id, IGraphTag tag = null)
         {
-            return AddNode(_nodeIndex++);
-        }
-        
-        private Node AddNode(uint id)
-        {
-            var newNode = new Node(id);
+            var newNode = new Node(id, tag);
             Nodes.Add(newNode);
             return newNode;
         }
-        
-        public Arc AddArc(Node from, Node to)
+
+        public Node AddNode(IGraphTag tag = null)
+        {
+            return AddNode(_nodeIndex++, tag);
+        }
+             
+        public Arc AddArc(Node from, Node to, IGraphTag tag = null)
         {
             if (from.GetArcTo(to) != null)
             {
                 return null;
             }
             
-            var newArc = new Arc(from, to);           
+            var newArc = new Arc(from, to, tag);           
             from.ArcsOut.Add(newArc);
             to.ArcsIn.Add(newArc);
             Arcs.Add(newArc);
+
             return newArc;
         }
         
-        public Arc AddArc(int id1, int id2)
+        public Arc AddArc(int id1, int id2, IGraphTag tag = null)
         {
-            return AddArc(GetNode(id1), GetNode(id2));
+            return AddArc(GetNode(id1), GetNode(id2), tag);
         }
         
         public void RemoveArc(Node from, Node to)
         {
             var arc = from.ArcsOut.FirstOrDefault(a => a.To == to);
-            from.ArcsOut.Remove(arc);
-            to.ArcsIn.Remove(arc);
-            Arcs.Remove(arc);
+            if (arc != null)
+            {
+                from.ArcsOut.Remove(arc);
+                to.ArcsIn.Remove(arc);
+                Arcs.Remove(arc);
+            }
         }
 
         public void RemoveArc(Arc arc)
