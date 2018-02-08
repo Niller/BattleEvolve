@@ -7,7 +7,7 @@ using UnityEngine;
 public class MouseInputStateComponent : IComponent
 {
     //public bool IsLeftButtonPressed;
-    public bool IsLeftButtonUp;
+    public bool IsLeftButtonDown;
     public bool IsRightButtonUp;
     public Vector2? MousePosition;
     public bool IsUnderUi;

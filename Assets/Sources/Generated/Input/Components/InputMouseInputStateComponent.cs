@@ -12,22 +12,22 @@ public partial class InputContext {
     public MouseInputStateComponent mouseInputState { get { return mouseInputStateEntity.mouseInputState; } }
     public bool hasMouseInputState { get { return mouseInputStateEntity != null; } }
 
-    public InputEntity SetMouseInputState(bool newIsLeftButtonUp, bool newIsRightButtonUp, UnityEngine.Vector2? newMousePosition, bool newIsUnderUi) {
+    public InputEntity SetMouseInputState(bool newIsLeftButtonDown, bool newIsRightButtonUp, UnityEngine.Vector2? newMousePosition, bool newIsUnderUi) {
         if (hasMouseInputState) {
             throw new Entitas.EntitasException("Could not set MouseInputState!\n" + this + " already has an entity with MouseInputStateComponent!",
                 "You should check if the context already has a mouseInputStateEntity before setting it or use context.ReplaceMouseInputState().");
         }
         var entity = CreateEntity();
-        entity.AddMouseInputState(newIsLeftButtonUp, newIsRightButtonUp, newMousePosition, newIsUnderUi);
+        entity.AddMouseInputState(newIsLeftButtonDown, newIsRightButtonUp, newMousePosition, newIsUnderUi);
         return entity;
     }
 
-    public void ReplaceMouseInputState(bool newIsLeftButtonUp, bool newIsRightButtonUp, UnityEngine.Vector2? newMousePosition, bool newIsUnderUi) {
+    public void ReplaceMouseInputState(bool newIsLeftButtonDown, bool newIsRightButtonUp, UnityEngine.Vector2? newMousePosition, bool newIsUnderUi) {
         var entity = mouseInputStateEntity;
         if (entity == null) {
-            entity = SetMouseInputState(newIsLeftButtonUp, newIsRightButtonUp, newMousePosition, newIsUnderUi);
+            entity = SetMouseInputState(newIsLeftButtonDown, newIsRightButtonUp, newMousePosition, newIsUnderUi);
         } else {
-            entity.ReplaceMouseInputState(newIsLeftButtonUp, newIsRightButtonUp, newMousePosition, newIsUnderUi);
+            entity.ReplaceMouseInputState(newIsLeftButtonDown, newIsRightButtonUp, newMousePosition, newIsUnderUi);
         }
     }
 
@@ -49,20 +49,20 @@ public partial class InputEntity {
     public MouseInputStateComponent mouseInputState { get { return (MouseInputStateComponent)GetComponent(InputComponentsLookup.MouseInputState); } }
     public bool hasMouseInputState { get { return HasComponent(InputComponentsLookup.MouseInputState); } }
 
-    public void AddMouseInputState(bool newIsLeftButtonUp, bool newIsRightButtonUp, UnityEngine.Vector2? newMousePosition, bool newIsUnderUi) {
+    public void AddMouseInputState(bool newIsLeftButtonDown, bool newIsRightButtonUp, UnityEngine.Vector2? newMousePosition, bool newIsUnderUi) {
         var index = InputComponentsLookup.MouseInputState;
         var component = CreateComponent<MouseInputStateComponent>(index);
-        component.IsLeftButtonUp = newIsLeftButtonUp;
+        component.IsLeftButtonDown = newIsLeftButtonDown;
         component.IsRightButtonUp = newIsRightButtonUp;
         component.MousePosition = newMousePosition;
         component.IsUnderUi = newIsUnderUi;
         AddComponent(index, component);
     }
 
-    public void ReplaceMouseInputState(bool newIsLeftButtonUp, bool newIsRightButtonUp, UnityEngine.Vector2? newMousePosition, bool newIsUnderUi) {
+    public void ReplaceMouseInputState(bool newIsLeftButtonDown, bool newIsRightButtonUp, UnityEngine.Vector2? newMousePosition, bool newIsUnderUi) {
         var index = InputComponentsLookup.MouseInputState;
         var component = CreateComponent<MouseInputStateComponent>(index);
-        component.IsLeftButtonUp = newIsLeftButtonUp;
+        component.IsLeftButtonDown = newIsLeftButtonDown;
         component.IsRightButtonUp = newIsRightButtonUp;
         component.MousePosition = newMousePosition;
         component.IsUnderUi = newIsUnderUi;

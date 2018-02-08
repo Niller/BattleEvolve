@@ -1,4 +1,5 @@
 ﻿using Entitas;
+using UnityEngine;
 
 namespace Sources.Systems
 {
@@ -15,6 +16,10 @@ namespace Sources.Systems
         {
             var entity = _context.CreateEntity();
             entity.AddViewResource("Player");
+            entity.isControllable = true;
+            entity.AddTransform(Vector2.zero, 0);
+            entity.AddMovable(6, 0.1f);
+            entity.AddCircleBounds(1);
             /*entity.AddName("current_player");
             entity.AddPosition(Map.instance.data.cells.First(c => c.isSpawnPoint));
             entity.isControllable = true;

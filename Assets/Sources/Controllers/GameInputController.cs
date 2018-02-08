@@ -32,11 +32,9 @@ namespace Sources.Controllers
                 input.ReplaceMouseInputState(false, false, null, true);
                 return;
             }
-            else
-            {
-                var groundPosition = GetGroundMousePosition(Input.mousePosition);
-                input.ReplaceMouseInputState(Input.GetMouseButtonDown(0), Input.GetMouseButtonDown(1), groundPosition, false);
-            }
+            
+            var groundPosition = GetGroundMousePosition(Input.mousePosition);
+            input.ReplaceMouseInputState(Input.GetMouseButton(0), Input.GetMouseButtonDown(1), groundPosition, false);
 
             /*var interactableObject = GetInteractableObject(Input.mousePosition);
         var groundPosition = GetGroundMousePosition(Input.mousePosition);

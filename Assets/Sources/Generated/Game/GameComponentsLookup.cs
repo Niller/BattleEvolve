@@ -8,19 +8,34 @@
 //------------------------------------------------------------------------------
 public static class GameComponentsLookup {
 
-    public const int Transform = 0;
-    public const int View = 1;
-    public const int ViewResource = 2;
+    public const int CircleBounds = 0;
+    public const int Controllable = 1;
+    public const int Movable = 2;
+    public const int Move = 3;
+    public const int RectangleBounds = 4;
+    public const int Transform = 5;
+    public const int View = 6;
+    public const int ViewResource = 7;
 
-    public const int TotalComponents = 3;
+    public const int TotalComponents = 8;
 
     public static readonly string[] componentNames = {
+        "CircleBounds",
+        "Controllable",
+        "Movable",
+        "Move",
+        "RectangleBounds",
         "Transform",
         "View",
         "ViewResource"
     };
 
     public static readonly System.Type[] componentTypes = {
+        typeof(CircleBoundsComponent),
+        typeof(ControllableComponent),
+        typeof(MovableComponent),
+        typeof(MoveComponent),
+        typeof(RectangleBoundsComponent),
         typeof(TransformComponent),
         typeof(ViewComponent),
         typeof(ViewResourceComponent)

@@ -53,6 +53,11 @@
   </ItemGroup>
   <ItemGroup>
       <Compile Include="Assets\Entitas\Compile.cs"/>
+      <Compile Include="Assets\Sources\Components\Game\CircleBoundsComponent.cs"/>
+      <Compile Include="Assets\Sources\Components\Game\ControllableComponent.cs"/>
+      <Compile Include="Assets\Sources\Components\Game\MovableComponent.cs"/>
+      <Compile Include="Assets\Sources\Components\Game\MoveComponent.cs"/>
+      <Compile Include="Assets\Sources\Components\Game\RectangleBoundsComponent.cs"/>
       <Compile Include="Assets\Sources\Components\Game\TransformComponent.cs"/>
       <Compile Include="Assets\Sources\Components\Game\ViewComponent.cs"/>
       <Compile Include="Assets\Sources\Components\Game\ViewResourceComponent.cs"/>
@@ -62,6 +67,11 @@
       <Compile Include="Assets\Sources\Features\GameSystems.cs"/>
       <Compile Include="Assets\Sources\Generated\Contexts.cs"/>
       <Compile Include="Assets\Sources\Generated\Feature.cs"/>
+      <Compile Include="Assets\Sources\Generated\Game\Components\GameCircleBoundsComponent.cs"/>
+      <Compile Include="Assets\Sources\Generated\Game\Components\GameControllableComponent.cs"/>
+      <Compile Include="Assets\Sources\Generated\Game\Components\GameMovableComponent.cs"/>
+      <Compile Include="Assets\Sources\Generated\Game\Components\GameMoveComponent.cs"/>
+      <Compile Include="Assets\Sources\Generated\Game\Components\GameRectangleBoundsComponent.cs"/>
       <Compile Include="Assets\Sources\Generated\Game\Components\GameTransformComponent.cs"/>
       <Compile Include="Assets\Sources\Generated\Game\Components\GameViewComponent.cs"/>
       <Compile Include="Assets\Sources\Generated\Game\Components\GameViewResourceComponent.cs"/>
@@ -77,9 +87,14 @@
     <Compile Include="Assets\Sources\Generated\Input\InputEntity.cs" />
       <Compile Include="Assets\Sources\Generated\Input\InputMatcher.cs"/>
       <Compile Include="Assets\Sources\Systems\GameStartSystem.cs"/>
+      <Compile Include="Assets\Sources\Systems\MoveSystem.cs"/>
+      <Compile Include="Assets\Sources\Systems\PlayerControlSystem.cs"/>
       <Compile Include="Assets\Sources\Systems\ViewResourceSystem.cs"/>
+      <Compile Include="Assets\Sources\Systems\ViewTransformUpdateSystem.cs"/>
       <Compile Include="Assets\Sources\Utilities\EntityExtensions.cs"/>
       <Compile Include="Assets\Sources\Utilities\GameConsts.cs"/>
+      <Compile Include="Assets\Sources\Utilities\Vector2Extensions.cs"/>
+      <Compile Include="Assets\Sources\Utilities\Vector3Extensions.cs"/>
     <Reference Include="UnityEngine.UI">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2017.3.1f1/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
     </Reference>
