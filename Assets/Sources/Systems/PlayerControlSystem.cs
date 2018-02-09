@@ -39,7 +39,7 @@ namespace Sources.Systems
             {
                 bool pointInControllable =
                     Vector2.Distance(controllableEntity.transform.Position, mouseInputState.MousePosition.Value) <
-                    controllableEntity.circleBounds.Radius;
+                    controllableEntity.circleBounds.Radius / 10f;
                 
                 if (!pointInControllable)
                 {
